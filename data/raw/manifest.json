@@ -1,0 +1,38 @@
+{
+  "mietic::mietic/train.parquet": {
+    "fetched_at": "2026-05-18T22:07:40Z",
+    "license": "CC-BY-NC-SA-4.0",
+    "path": "mietic/train.parquet",
+    "sha256": "ae7e698c55aa52ae836b95300f998939b2dd45be066e6235c02baac7dc12e50e",
+    "size_bytes": 7560291,
+    "source": "mietic",
+    "url": "hf://jackf7499/MIETIC"
+  },
+  "sats::pdf/sats_manual.pdf": {
+    "fetched_at": "2026-05-18T22:07:10Z",
+    "license": "EMSSA",
+    "path": "pdf/sats_manual.pdf",
+    "sha256": "410c8d4b11b59eb41c5c283419ba85f4b7507ccd9569ab4b987b8512f9cc30b5",
+    "size_bytes": 1636761,
+    "source": "sats",
+    "url": "https://emssa.org.za/wp-content/uploads/2011/04/SATS-Manual-A5-LR-spreads.pdf"
+  },
+  "who_etat::pdf/who_etat.pdf": {
+    "fetched_at": "2026-05-18T22:07:18Z",
+    "license": "WHO-CC-BY-NC-SA-3.0-IGO",
+    "path": "pdf/who_etat.pdf",
+    "sha256": "9f2c85bf95925dd29905372bb8d650aae696a4af05dc0f32c55c1f602154c104",
+    "size_bytes": 611439,
+    "source": "who_etat",
+    "url": "https://www.afro.who.int/sites/default/files/2017-06/participant_manual.pdf"
+  },
+  "who_imci::pdf/who_imci.pdf": {
+    "fetched_at": "2026-05-18T22:07:14Z",
+    "license": "WHO-CC-BY-NC-SA-3.0-IGO",
+    "path": "pdf/who_imci.pdf",
+    "sha256": "d10fd1d040bdbdb6db4254b8095e1d1722d0a3d2f80c3651b3003301a8a6959f",
+    "size_bytes": 5304059,
+    "source": "who_imci",
+    "url": "https://cdn.who.int/media/docs/default-source/mca-documents/child/imci-integrated-management-of-childhood-illness/imci-in-service-training/imci-chart-booklet.pdf"
+  }
+}

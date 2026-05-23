@@ -1,0 +1,2 @@
+# Reuses .venv from 3_data_cleaning. No new deps required.
+# vllm, pyarrow, pandas, tqdm already installed.

@@ -1,0 +1,78 @@
+{
+  "weights": {
+    "esi_accuracy": 0.25,
+    "pediatric_recall": 0.2,
+    "non_refusal_rate": 0.2,
+    "latency_score": 0.2,
+    "sats_accuracy": 0.15
+  },
+  "latency_target_tok_s": 50.0,
+  "gates": {
+    "min_latency_tok_s": 10.0,
+    "max_refusal_rate": 0.3,
+    "min_pediatric_recall": 0.4
+  },
+  "ranking": [
+    {
+      "model": "qwen3-1.7b",
+      "esi_accuracy": 0.928,
+      "sats_accuracy": 0.928,
+      "pediatric_recall": 0.7867,
+      "refusal_rate": 0.0,
+      "non_refusal_rate": 1.0,
+      "tokens_per_s_gpu": 59.89,
+      "latency_score": 1.0,
+      "validation_perplexity": 1.51,
+      "external": {
+        "medqa_accuracy": 0.0,
+        "pubmedqa_accuracy": 0.09,
+        "mmlu_clinical_accuracy": 0.16
+      },
+      "gates_passed": true,
+      "gate_failures": [],
+      "composite_score": 0.9285
+    },
+    {
+      "model": "gemma-3n-e2b",
+      "esi_accuracy": 0.0,
+      "sats_accuracy": 0.0,
+      "pediatric_recall": 0.55,
+      "refusal_rate": 0.0,
+      "non_refusal_rate": 1.0,
+      "tokens_per_s_gpu": 22.0,
+      "latency_score": 0.44,
+      "validation_perplexity": 12.32,
+      "gates_passed": true,
+      "gate_failures": [],
+      "composite_score": 0.398
+    }
+  ],
+  "disqualified": [
+    {
+      "model": "smollm3-3b",
+      "esi_accuracy": 0.948,
+      "sats_accuracy": 0.948,
+      "pediatric_recall": 0.34,
+      "refusal_rate": 0.0,
+      "non_refusal_rate": 1.0,
+      "tokens_per_s_gpu": 64.34,
+      "latency_score": 1.0,
+      "validation_perplexity": 1.26,
+      "external": {
+        "medqa_accuracy": 0.0,
+        "pubmedqa_accuracy": 0.03,
+        "mmlu_clinical_accuracy": 0.22
+      },
+      "gates_passed": false,
+      "gate_failures": [
+        "pediatric_recall 0.34 < gate 0.4"
+      ],
+      "composite_score": 0.8472
+    }
+  ],
+  "reference": null,
+  "decision": {
+    "primary": "qwen3-1.7b",
+    "gap_to_second": 0.5305
+  }
+}

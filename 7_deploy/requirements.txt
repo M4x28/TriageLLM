@@ -1,0 +1,11 @@
+# Step 7 deploy: GGUF Q4_K_M conversion + eval + HF Hub publish.
+# Riusa .venv-sft di step 5 (transformers, peft, torch). Aggiunge solo:
+
+# CPU-only build for ARM-proxy latency measurement on the server Xeon.
+# On linux, install with BLAS acceleration:
+#   CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" \
+#     pip install llama-cpp-python==0.3.5 --upgrade --force-reinstall --no-cache-dir
+llama-cpp-python==0.3.5
+
+# HF Hub publish (already pinned in step 5 venv, but listed for traceability).
+huggingface_hub>=0.27.0

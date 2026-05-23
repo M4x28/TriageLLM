@@ -1,0 +1,32 @@
+{
+  "input_records": 29447,
+  "length_dropped": 33,
+  "post_length_filter": 29414,
+  "val_frac": 0.05,
+  "seed": 42,
+  "train_total": 33575,
+  "validation_total": 1479,
+  "slices": {
+    "pediatric_guideline": {
+      "original": 393,
+      "factor": 10,
+      "post": 3930
+    },
+    "adult_guideline": {
+      "original": 141,
+      "factor": 5,
+      "post": 705
+    },
+    "mietic_cases": {
+      "original": 27410,
+      "factor": 1,
+      "post": 27410
+    },
+    "identity": {
+      "original": 153,
+      "factor": 10,
+      "post": 1530,
+      "validation": 9
+    }
+  }
+}

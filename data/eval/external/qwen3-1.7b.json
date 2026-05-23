@@ -1,0 +1,426 @@
+{
+  "model": "qwen3-1.7b",
+  "is_reference": false,
+  "hf_or_path": "Qwen/Qwen3-1.7B",
+  "medqa": {
+    "n": 100,
+    "correct": 0,
+    "accuracy": 0.0,
+    "samples": [
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 29-year-old male who has undergone a surgical procedure for carpal tunnel syndr"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the patient's condition, we have a 67-year-old male with a history of transitional cell carcinoma (TCC) of the bladder, who is u"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient presents with several concerning symptoms and a complex medical history. Let's analyze the sit"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient is presenting with symptoms that suggest a possible infection, likely a pelvic inflammatory di"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient presents with symptoms consistent with allergic conjunctivitis, including itchy, wat"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient is experiencing a severe episode of angina, likely due to cocaine use, which has led to vasosp"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 68-year-old male with a history of diabetes mellitus and peripheral artery disease, prese"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient is a 65-year-old male with a history of hypertension and asthma, presenting with acute chest p"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 37-year-old female who is requesting a change in her birth control method from "
+      },
+      {
+        "id": null,
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 23-year-old female with a complaint of embarrassment due to the appearance of h"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe confirmatory test described in this scenario is a DNA polymerase chain reaction (PCR) test. PCR is a molecular diagnostic test used to de"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient presents with several concerning symptoms and findings that warrant a thorough evaluation for "
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient presents with bilateral sensorineural hearing loss and gait unsteadiness, which are concerning"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe patient is a 47-year-old male who has come to the emergency department for a routine medical check-up. He is asymptomatic, with no acute "
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe proposed theory describes a novel mechanism of co-infection leading to the emergence of a new virus strain. This mechanism involves co-in"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 59-year-old female with a history of significant medical conditions, including obesity, h"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 7-year-old with a history of asthma, currently experiencing an exacerbation. He"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe study compared two groups of infants with BRUE: those with a history of feeding problems and those without. The key point here is that th"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient is experiencing symptoms consistent with angina, likely due to coronary artery disease, given "
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the patient is a 46-year-old male with altered mental status, somnolence, and a history of alcohol use. Th"
+      }
+    ]
+  },
+  "pubmedqa": {
+    "n": 100,
+    "correct": 9,
+    "accuracy": 0.09,
+    "samples": [
+      {
+        "id": 21645374,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn this scenario, the primary focus is on understanding the role of mitochondria in programmed cell death (PCD) during the development of per"
+      },
+      {
+        "id": 16418930,
+        "gold": "no",
+        "pred": "no",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\n1. Analysis of the patient's condition:\n   - The patient is a 60-year-old male with a history of strabismus and amblyopia, presenting with vi"
+      },
+      {
+        "id": 9488747,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the provided information, the infant is experiencing episodes of syncope (fainting) during bathing, which is a concerning symptom. T"
+      },
+      {
+        "id": 17208539,
+        "gold": "no",
+        "pred": "no",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 41-year-old male with a history of Hirschsprung's Disease (HD) who underwent a transanal "
+      },
+      {
+        "id": 10808977,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nTREATMENT\nGiven that this patient is in the ED for a follow-up visit, she is likely to need some \nsupportive or possibly curative treatment. "
+      },
+      {
+        "id": 23831910,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nDouble-balloon endoscopy (DBE) is a more advanced procedure \nused to evaluate the small intestine, which is typically accessible \nonly by ope"
+      },
+      {
+        "id": 26037986,
+        "gold": "maybe",
+        "pred": "no",
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 67-year-old male who underwent emergency surgery for a suspected perforated bowel perfora"
+      },
+      {
+        "id": 26852225,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nAdjustment for reporting heterogeneity (that is, correction of cut-point shifts) is recommended for all classification tables with which the "
+      },
+      {
+        "id": 17113061,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the provided information, the key point is the relationship between low HDL cholesterol levels due to genetic mutations and the "
+      },
+      {
+        "id": 10966337,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the decision to implement a short stay ward in a general and academic children's hospital can be analyzed "
+      },
+      {
+        "id": 25432938,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the primary goal of the study was to assess the impact of a specific traffic law reform on police enforcem"
+      },
+      {
+        "id": 18847643,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nTreatment of trauma\nAnticoagulation: heparin\nHeparin is given to prevent clot formation in cases of bleeding after trauma. Heparin"
+      },
+      {
+        "id": 18239988,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 61-year-old male with a history of alcohol use and steatohepatitis, presenting "
+      },
+      {
+        "id": 25957366,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the provided information, the study's primary objective was to determine the effectiveness of automated, tailored prompts in enc"
+      },
+      {
+        "id": 24866606,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the study aims to determine the impact of emergency ultrasound (EUS) fellowship programs on the education "
+      },
+      {
+        "id": 26578404,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n**Analysis:**\n\nThe patient is experiencing severe dyspnea (difficulty breathing), which is a critical symptom that requires immediate attenti"
+      },
+      {
+        "id": 11729377,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 13-year-old male with a history of Hepatitis C cirrhosis and splenomegaly, presenting wit"
+      },
+      {
+        "id": 17096624,
+        "gold": "yes",
+        "pred": "no",
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\n1. **Analysis of Patient's Condition:**\n   - The patient is a 65-year-old male who is not currently symptomatic and has no acute medical issu"
+      },
+      {
+        "id": 22694248,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe study's primary aim was to develop a training model for retroperitoneoscopic nephrectomy (RPN) and to establish an experimental learning "
+      },
+      {
+        "id": 22990761,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the patient's condition, we note that the primary concern is the elevated resting heart rate (RHR) of 100 bpm. This elevated RHR"
+      }
+    ]
+  },
+  "mmlu_clinical": {
+    "n": 50,
+    "correct": 8,
+    "accuracy": 0.16,
+    "samples": [
+      {
+        "gold": "A",
+        "pred": "A",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nThe size of the cannula needed depends on the type of IV fluid or medication the patient is going to receive. A 22-gauge IV cannula is typica"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe key attribute that successful marathon runners need is stamina. This is because marathon running is an endurance sport that requires the "
+      },
+      {
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nTREATMENT\nGive every child\nmebendazole every 6\nmonths from the age\nof one year. Record\nthe dose on the\nchild's card.\n9 months\nMeasles **\n18 m"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the patient's condition, we have a 22-year-old male presenting with symptoms suggestive of anaphylaxis. Anaphylaxis is a severe "
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nPouching applies a clean or dry porcine skin substitute to the area around the stoma. The skin\nis adhesive on the bottom and glues to the ski"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe body's need for oxygen increases during strenuous exercise, but at first, the oxygen required is met by the external respiration (breathi"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nIn analyzing the patient's condition, the primary concern is the onset of diplopia (double vision) after a fall. Diplopia can be caused by a "
+      },
+      {
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe administration of sodium bicarbonate to an athlete who has ingested excessive amounts of sodium benzoate is an example of a therapeutic i"
+      },
+      {
+        "gold": "A",
+        "pred": "A",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nAnswer: A. Triplet sequences of nucleotide bases in mRNA or DNA.\n\nCodons are defined as triplet sequences of nucleotide bases in mRNA or DNA."
+      },
+      {
+        "gold": "D",
+        "pred": "D",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nThe answer is D. Carnitine.\n\nExplanation: Fatty acids are transported into the mitochondria and converted to acetyl-CoA via the carnitine shu"
+      },
+      {
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nMatching blood types is important when giving blood. If a patient says \"O negative\" look\nat their finger prick test. If their finger prick te"
+      },
+      {
+        "gold": "D",
+        "pred": "A",
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nA lower motor neurone lesion in the arm leads to a loss of voluntary movement. There is increased reflex activity and you may find fasciculat"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe question is a bit confusing as it asks for a false statement, but I'll assume it's referring to a key concept in physiology related to ex"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe process of breaking down glycogen to\nglucose is called glycogenolysis. This process is\ninitiated by the release of adrenaline (epinephrin"
+      },
+      {
+        "gold": "B",
+        "pred": "B",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nAnswer: B. actin and myosin.\n\nJustification: The sliding filament theory of muscle contraction involves the interaction between actin and myo"
+      },
+      {
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nPupil is unreactive to\nshock. Actors say the\npupil was shocked while\nwalking into the theatre.\nThis is a form of emergency\neye injury. The le"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nMalaria is a possible cause of thyroid swelling.\nAntibiotics are not used for thyroid swelling.\nParacetamol is not used for thyroid swelling."
+      },
+      {
+        "gold": "C",
+        "pred": "B",
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nAns: B\nExplanation: The cardinal sign of hepatomegaly is the feeling of lump in the abdomen. In\nchildren, this sensation is usually described"
+      },
+      {
+        "gold": "C",
+        "pred": "C",
+        "correct": true,
+        "response_preview": "<think>\n\n</think>\n\nAns: C\nExplanation: The ankle reflex (or knee jerk) is associated with S2 and is the first fibre\npathway beyond the spinal cord. It is used t"
+      },
+      {
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "<think>\n\n</think>\n\nThe patient's condition aligns with the ESI Level 2 criteria due to the high-risk nature of her symptoms. Here's the analysis:\n\n1. **High-Ris"
+      }
+    ]
+  }
+}

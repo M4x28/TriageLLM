@@ -1,0 +1,426 @@
+{
+  "model": "smollm3-3b",
+  "is_reference": false,
+  "hf_or_path": "HuggingFaceTB/SmolLM3-3B",
+  "medqa": {
+    "n": 100,
+    "correct": 0,
+    "accuracy": 0.0,
+    "samples": [
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided scenario, the situation involves a minor complication during a carpal tunnel release procedure. The key points to consider are:\n\n1. **Proc"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 67-year-old male with a history of transitional cell carcinoma of the bladder, currently undergoing neoadjuv"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient presents with several concerning symptoms and findings that warrant a high-risk classification under the ESI Leve"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient is presenting with signs and symptoms that are highly suggestive of a severe infection, possibly sepsis, given th"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient presents with eye redness and mild discomfort, with a history of seasonal allergic conjunctivitis and a"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient is experiencing chest pain with characteristics suggestive of a possible acute coronary syndrome (ACS), such as m"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 68-year-old male with a history of diabetes mellitus, hypertension, and peripheral vascular disease, present"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 65-year-old male with a history of hypertension and asthma who presented with chest pain and diaphoresis, wh"
+      },
+      {
+        "id": null,
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 37-year-old female who is stable and asymptomatic, seeking a change in her contraceptive method fr"
+      },
+      {
+        "id": null,
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 23-year-old female with a concern about her nail appearance.\n   - She is stable with normal vital "
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "I can see why you might think that, but the confirmatory test in this context is likely referring to a HIV antibody test, which does not require a blottting pro"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient presents with several concerning features that warrant a high-risk classification under the ESI Level 2 criteria."
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 20-year-old male with a history of progressive gait unsteadiness and intermittent hearing loss over the past"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 47-year-old male with a mid-systolic murmur and radiation of sound to the carotids, which could su"
+      },
+      {
+        "id": null,
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Cytomegalovirus (CMV), Epstein-Barr virus (EBV), and Human Immunodeficiency Virus (HIV) are the only three viruses listed that can undergo the described process"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 59-year-old female with a history of recurrent abdominal pain due to cholelithiasis, presenting with severe "
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "To answer this question, we need to understand the context provided and the nature of the experimental therapy mentioned. The key points to consider are:\n\n1. **"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "The pediatrician in this scenario is attempting to identify risk factors for Brief Resolution Unexplained Encephalopathy (BREE) in infants. To control for confo"
+      },
+      {
+        "id": null,
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient is presenting with symptoms highly suggestive of acute pericarditis, particularly given the sudden onset of chest"
+      },
+      {
+        "id": null,
+        "gold": "E",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient is a 46-year-old male with altered mental status, found unresponsive and somnolent, with a history of alcohol abu"
+      }
+    ]
+  },
+  "pubmedqa": {
+    "n": 100,
+    "correct": 3,
+    "accuracy": 0.03,
+    "samples": [
+      {
+        "id": 21645374,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the role of mitochondria in the programmed cell death (PCD) process in the lace plant (Aponogeton madagascariensis) is multif"
+      },
+      {
+        "id": 16418930,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 60-year-old male with a history of visual acuity issues, presenting for a second opinion on his cu"
+      },
+      {
+        "id": 9488747,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient's condition can be analyzed as follows:\n\n1. **Symptoms and Presentation**: The infants presented with pallor, cya"
+      },
+      {
+        "id": 17208539,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the long-term outcomes for patients who underwent the Transanal Endorectal Pull-through (TERPT) versus the Transabdominal Pul"
+      },
+      {
+        "id": 10808977,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 71-year-old female who is seeking a mammogram. She is not in any distress and has stable vital sig"
+      },
+      {
+        "id": 23831910,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 62-year-old male who has undergone multiple enterospections over the past few years for the evaluation and t"
+      },
+      {
+        "id": 26037986,
+        "gold": "maybe",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the study focuses on the mortality rates of patients who have undergone emergency laparotomy. The key findings indicate that "
+      },
+      {
+        "id": 26852225,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the study addresses the need to adjust for reporting heterogeneity in the assessment of sleep disorders. The key points to co"
+      },
+      {
+        "id": 17113061,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the study examines the relationship between low-density lipoprotein (LDL) cholesterol and carotid intima-media thickness (cIM"
+      },
+      {
+        "id": 10966337,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 22-month-old male who has been assigned a SHCP triage level of 3. This suggests that the patient i"
+      },
+      {
+        "id": 25432938,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the study aimed to assess the impact of the Chilean traffic law reform and subsequent police enforcement on reducing traffic "
+      },
+      {
+        "id": 18847643,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the safety of therapeutic anticoagulation in trauma patients is a complex issue that requires careful consideration. Here is "
+      },
+      {
+        "id": 18239988,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the study aimed to differentiate between nonalcoholic steatohepatitis (NASH) and alcoholic steatohepatitis (ASH) using labora"
+      },
+      {
+        "id": 25957366,
+        "gold": "no",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the study aimed to assess whether prompting primary care providers (PCPs) about increased patient risk due to family history "
+      },
+      {
+        "id": 24866606,
+        "gold": "yes",
+        "pred": "no",
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 29-year-old male who is asymptomatic and has stable vital signs. He is requesting a pelvic ultraso"
+      },
+      {
+        "id": 26578404,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 77-year-old female with advanced cancer who is experiencing significant breathlessness. She has been receivi"
+      },
+      {
+        "id": 11729377,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the patient is a 19-year-old male who has undergone a liver transplant and is now presenting with symptoms suggestive of live"
+      },
+      {
+        "id": 17096624,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 65-year-old male who is seeking a flu vaccine. He is not in acute distress and has stable vital si"
+      },
+      {
+        "id": 22694248,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the focus of the study appears to be the development and validation of a training model for retroperitoneoscopic nephrectomy,"
+      },
+      {
+        "id": 22990761,
+        "gold": "yes",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the provided information, the study examines the prevalence of cardiovascular risk factors, particularly elevated resting heart rate (RHR), in a rural "
+      }
+    ]
+  },
+  "mmlu_clinical": {
+    "n": 50,
+    "correct": 11,
+    "accuracy": 0.22,
+    "samples": [
+      {
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 56-year-old male who has experienced trauma to his right hand, resulting in significant pain and requiring a"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "I notice the patient has a chief complaint related to marathon training but is currently asymptomatic with stable vital signs. Given the lack of acute medical i"
+      },
+      {
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "I can't issue a diagnosis. Based on the information provided, the patient is asymptomatic and has stable vital signs, so there is no immediate need for a specif"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "I can't authorize you to treat. Treatment for anaphylaxis is definitely not to be begun without explicit physician order. Based on the provided protocol (epinep"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 68-year-old male who has come to the ED for a wound evaluation. He is stable, with normal vital si"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "Based on the information provided, the patient is a 57-year-old male who experienced a cardiac arrest and was found unresponsive with sputum and blood-tinged vo"
+      },
+      {
+        "gold": "B",
+        "pred": "D",
+        "correct": false,
+        "response_preview": "D\nThe presence of diplopia (double vision) itself is a clinical sign that requires careful consideration for ESI Level 2 classification. While diplopia can be a"
+      },
+      {
+        "gold": "A",
+        "pred": null,
+        "correct": false,
+        "response_preview": "1. **Analysis of Patient's Condition:**\n   - The patient is a 20-year-old male who ingested a significant amount of sodium bicarbonate (approximately 1.3 pounds"
+      },
+      {
+        "gold": "A",
+        "pred": "A",
+        "correct": true,
+        "response_preview": "A\nThe correct answer is A. The other options are incorrect because they describe different levels of genetic information or structures. Codons are made up of th"
+      },
+      {
+        "gold": "D",
+        "pred": "D",
+        "correct": true,
+        "response_preview": "D. carnitine\n\nJustification: Fatty acids are transported into the mitochondria as acyl-carnitine bound to carnitine. This is a crucial step in fatty acid metabo"
+      },
+      {
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "In this scenario, the patient is a 23-year-old female who has come to the emergency department specifically for a blood transfusion. Her vital signs are stable,"
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "To determine whether this is a case of a higher or lower neurological level, you will need to assess the strength of the patient's hand and, more specifically, "
+      },
+      {
+        "gold": "B",
+        "pred": "B",
+        "correct": true,
+        "response_preview": "B\nMuscle lactate accumulation begins with short-duration activities of moderate to high intensity, such as sprinting. This process depends on adequate oxygen su"
+      },
+      {
+        "gold": "B",
+        "pred": null,
+        "correct": false,
+        "response_preview": "When the body needs energy, such as during exercise or when blood glucose levels are low, glycogen breakdown in muscle cells occurs. This process leads to the f"
+      },
+      {
+        "gold": "B",
+        "pred": "B",
+        "correct": true,
+        "response_preview": "B. actin and myosin.\nThe muscle protein actin is a key structural element in the thin filaments of muscle cells. The protein myosin is important for muscle cont"
+      },
+      {
+        "gold": "C",
+        "pred": null,
+        "correct": false,
+        "response_preview": "The condition described is highly suggestive of a severe neurological event, likely a hemorrhagic stroke or other form of cerebrovascular accident (CVA), given "
+      },
+      {
+        "gold": "D",
+        "pred": null,
+        "correct": false,
+        "response_preview": "To determine the validity of each statement regarding thyroid swelling and potential causes, let's analyze the situation based on thyroid pathology and imaging "
+      },
+      {
+        "gold": "C",
+        "pred": "A",
+        "correct": false,
+        "response_preview": "To determine the validity of each statement:\n\nA. **Hepatomegaly**: This is the enlargement of the liver, which can be caused by various conditions such as liver"
+      },
+      {
+        "gold": "C",
+        "pred": "D",
+        "correct": false,
+        "response_preview": "D. The root value of the ankle reflex is S1\n   The root value of the knee reflex is L1, L2\n\nIn this case, the patient's vital signs are stable, and there is no "
+      },
+      {
+        "gold": "C",
+        "pred": "A",
+        "correct": false,
+        "response_preview": "To determine the validity of each statement:\n\nA. Bells palsy is another term for an upper motor neuron lesion: This is incorrect. Bells palsy is a common cause "
+      }
+    ]
+  }
+}

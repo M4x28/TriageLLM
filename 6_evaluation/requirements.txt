@@ -1,0 +1,12 @@
+# Step 6 evaluation requirements. Reuses .venv-sft from step 5 (transformers
+# 4.57, peft 0.19, torch 2.12). Datasets is already installed; we only need
+# explicit pins to keep the env reproducible.
+torch>=2.4,<3.0
+transformers>=4.55,<5.0
+peft>=0.14,<1.0
+accelerate>=1.2,<2.0
+datasets>=3.0,<4.0
+huggingface_hub>=0.26,<1.0
+numpy>=1.26,<3.0
+scikit-learn>=1.4,<2.0
+tqdm>=4.67,<5.0
