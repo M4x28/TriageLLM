@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -71,6 +72,41 @@ def _load_seed_split(path: Path, factor: int, val_frac: float, seed: int,
     log.info("%s: loaded %d (length-dropped %d) -> train %d × %d = %d, val %d",
              name, len(recs), dropped, len(train_pool), factor, len(train), len(val))
     return train, val
+
+
+# ESI -> Action map; MUST stay in sync with 3_qa_rewrite/common.ESI_TO_ACTION.
+# Duplicated (not imported) to avoid the `import common` name clash with this
+# step's own common.py.
+_ESI_TO_ACTION = {
+    1: "REFER NOW", 2: "URGENT SAME-DAY CARE", 3: "URGENT SAME-DAY CARE",
+    4: "ROUTINE FOLLOW-UP", 5: "HOME CARE + RETURN ADVICE",
+}
+_ESI_RE = re.compile(r"\bESI\s*(\d)\b", re.IGNORECASE)
+
+
+def _backfill_action(records: list[dict]) -> int:
+    """Stamp metadata.action on pre-Phase-B MIETIC records (no LLM).
+
+    Rewrite output generated before Phase B carries the ESI code in the answer
+    but no Action. We read that ESI and derive the Action so the Action-first
+    guard can prepend it, avoiding a costly step-3 re-run. Records already
+    carrying an Action (fresh step-3 output) are left untouched. Returns count.
+    """
+    n = 0
+    for r in records:
+        md = r.setdefault("metadata", {})
+        if md.get("action") or md.get("source") not in MIETIC_SOURCES:
+            continue
+        msgs = r.get("messages") or []
+        m = _ESI_RE.search(msgs[-1].get("content", "")) if msgs else None
+        if not m:
+            continue
+        esi = int(m.group(1))
+        if esi not in _ESI_TO_ACTION:
+            continue
+        md.update(triage_framework="ESI", action=_ESI_TO_ACTION[esi], esi=esi)
+        n += 1
+    return n
 
 
 def _normalize_system_prompt(records: list[dict]) -> int:
@@ -126,10 +162,13 @@ def main() -> int:
     records = load_jsonl(in_path)
     log.info("loaded %d records", len(records))
 
-    # Phase 2: move the triage label to the first line of labeled answers,
-    # before length filtering so the filter sees the final text.
+    # Phase 2: backfill Action on legacy MIETIC records, then move the Action to
+    # the first line of every labeled answer (before length filtering, so the
+    # filter sees the final text).
+    n_backfill = _backfill_action(records)
+    log.info("backfilled Action metadata on %d legacy records", n_backfill)
     n_labeled = prepend_triage_label(records)
-    log.info("label-first reformat: prepended header to %d/%d records",
+    log.info("Action-first reformat: prepended Action line to %d/%d records",
              n_labeled, len(records))
 
     records, dropped = length_filter(records, max_chars=args.max_chars)
