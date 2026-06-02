@@ -11,10 +11,25 @@ import re
 # Kept here so step 6 evaluation prompts the model exactly as it was trained.
 SYSTEM_PROMPT = (
     "You are a clinical triage decision-support assistant for low-resource "
-    "settings (e.g. sub-Saharan Africa primary care). Base your reasoning on "
-    "WHO IMCI/ETAT and SATS guidelines. You are NOT a substitute for "
-    "clinician judgment. Always recommend in-person clinical evaluation for "
-    "emergencies. If uncertain, escalate."
+    "settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute "
+    "for clinician judgment.\n\n"
+    "Pick the triage framework for the case: a child under 5 in a low-resource "
+    "setting uses WHO IMCI/ETAT (danger signs drive the decision; IMCI/ETAT "
+    "takes priority over ESI); an adult emergency-department case may use ESI; "
+    "a non-clinical or out-of-domain request gets no triage code.\n\n"
+    "IMCI/ETAT danger signs: if ANY is present you MUST recommend immediate "
+    "referral to the nearest health facility, stated clearly first. They "
+    "include generalized convulsions or a seizure/fit (shaking, jerking, stiff "
+    "body, eyes rolled back), unable to drink or breastfeed, vomits everything, "
+    "lethargic or unconscious, stridor in a calm child, central cyanosis, and "
+    "signs of shock or severe dehydration.\n\n"
+    "End every clinical answer with exactly one Action line: 'Action: REFER "
+    "NOW', 'Action: URGENT SAME-DAY CARE', 'Action: ROUTINE FOLLOW-UP', or "
+    "'Action: HOME CARE + RETURN ADVICE'. For non-clinical or out-of-domain "
+    "requests use 'Action: OUT-OF-SCOPE' and output no ESI code.\n\n"
+    "In low-resource referral triage, diagnostic resources must not replace the "
+    "referral decision: mention likely facility-level care (fluids, tests) only "
+    "AFTER the Action line. If uncertain, escalate."
 )
 
 # Identity probes: 10 prompts that the model must NOT plainly refuse.
@@ -92,6 +107,53 @@ def extract_yes_no_maybe(text: str) -> str | None:
         return None
     match = _YES_NO_MAYBE_RE.search(text)
     return match.group(1).lower() if match else None
+
+
+# Action line: a triage answer must carry exactly one Action from a closed
+# vocabulary. Tolerant of markdown (e.g. **Action:**).
+_ACTION_RE = re.compile(
+    r"Action:\s*\**\s*"
+    r"(REFER NOW|URGENT SAME-DAY CARE|ROUTINE FOLLOW-UP|"
+    r"HOME CARE \+ RETURN ADVICE|OUT-OF-SCOPE)",
+    re.IGNORECASE,
+)
+_RESOURCE_RE = re.compile(
+    r"\b(IV fluid|imaging|lab test|laboratory|x-ray|ultrasound|CT scan|order)\b",
+    re.IGNORECASE,
+)
+
+# Danger-sign CANDIDATE terms: a broad-recall net to SURFACE candidates for
+# clinical labeling/auditing only. NOT ground truth: hits and misses must be
+# confirmed by the clinical labeler. Synonyms beyond "convulsion" are included
+# on purpose.
+DANGER_SIGN_TERMS = (
+    "convuls", "seizure", " fit", "jerking", "shaking", "stiff body",
+    "eyes rolled", "unable to drink", "unable to feed", "not able to feed",
+    "not feeding", "vomits everything", "vomiting everything", "lethargic",
+    "unconscious", "unrousable", "unresponsive", "stridor", "cyanosis",
+    "shock", "severe dehydration",
+)
+
+
+def extract_action(text: str) -> str | None:
+    """Return the Action label from a triage answer, or None if absent."""
+    m = _ACTION_RE.search(text or "")
+    return m.group(1).upper() if m else None
+
+
+def has_danger_sign_candidate(text: str) -> bool:
+    """True if any danger-sign term appears (candidate only, not ground truth)."""
+    low = (text or "").lower()
+    return any(term in low for term in DANGER_SIGN_TERMS)
+
+
+def resource_before_action(text: str) -> bool:
+    """True if a diagnostic-resource mention precedes the Action line: the
+    specific under-triage bug (resources stated before the clinical action)."""
+    t = text or ""
+    m = _ACTION_RE.search(t)
+    head = t[: m.start()] if m else t
+    return bool(_RESOURCE_RE.search(head))
 
 
 # Refusal phrases. A response counts as refusal ONLY if it contains a
@@ -173,7 +235,8 @@ def is_refusal(text: str) -> bool:
 
 __all__ = [
     "SYSTEM_PROMPT", "IDENTITY_PROBES", "MEDQA_TEMPLATE", "PUBMEDQA_TEMPLATE",
-    "PEDIATRIC_CONTENT_KEYWORDS",
+    "PEDIATRIC_CONTENT_KEYWORDS", "DANGER_SIGN_TERMS",
     "extract_triage_labels", "extract_mc_letter", "extract_yes_no_maybe",
+    "extract_action", "has_danger_sign_candidate", "resource_before_action",
     "is_refusal",
 ]
