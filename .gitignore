@@ -191,3 +191,8 @@ data/sft/
 # Scripts intentionally not published
 7_deploy/publish_to_hf.py
 6_evaluation/static_evaluation/emergent_probes.py
+
+# Behavioral eval work dir (injected prompt + generated scenarios) and any
+# generated scenarios under the seeds; seeds keep only the authored BEHAVIOR.md.
+6_evaluation/behavioral/.work/
+6_evaluation/behavioral/seeds/*/scenarios/
