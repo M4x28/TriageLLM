@@ -86,6 +86,17 @@ ESI_TO_SATS = {
     5: "Green (non-urgent)",
 }
 
+# Standard ESI -> Action mapping (Phase 2 under-triage fix). The Action line is
+# separate from the ESI severity code: the model must lead every clinical answer
+# with an Action so "escalate" is no longer conflated with "assign ESI 2".
+ESI_TO_ACTION = {
+    1: "REFER NOW",
+    2: "URGENT SAME-DAY CARE",
+    3: "URGENT SAME-DAY CARE",
+    4: "ROUTINE FOLLOW-UP",
+    5: "HOME CARE + RETURN ADVICE",
+}
+
 # A clear "this patient needs a life-saving / immediate intervention" verdict in
 # an esi1_detection trace => ESI 1. Anything weaker (negative or unclear) is not
 # labeled from this task alone: the true level is 2-5 and undeterminable here.
@@ -162,37 +173,81 @@ def _vitals_danger_zone(patient: dict) -> bool:
     return False
 
 
-def derive_triage_label(case: dict) -> str | None:
-    """Derive the real ESI/SATS label from the MIETIC task answer.
+@dataclass
+class TriageLabel:
+    """Structured triage label for a clinical record.
 
-    Returns a human-readable "ESI N / SATS Color (...)" line, or None when the
-    level cannot be determined from this task alone (e.g. a negative
-    esi1_detection, which only rules out ESI 1).
+    `framework` is one of ESI | IMCI_ETAT | SATS | OUT_OF_SCOPE. `action` is the
+    closed-vocabulary Action line. `esi`/`sats` are populated only for the ESI
+    framework (MIETIC adult ED cases).
     """
-    if not case:
-        return None
+    framework: str
+    action: str
+    esi: int | None = None
+    sats: str | None = None
+
+
+def _derive_esi(case: dict) -> int | None:
+    """Compute the ESI level from a MIETIC task answer, or None if not derivable.
+
+    `esi1_detection` only yields ESI 1 on a positive verdict; a negative/unclear
+    verdict rules out ESI 1 but leaves the true level (2-5) undeterminable here.
+    `resource_prediction` maps the predicted resource count to ESI 3/4/5, with a
+    danger-zone-vitals tie-breaker upgrade to ESI 2.
+    """
     task = case.get("task_type")
     trace = case.get("reasoning_trace", "") or ""
-
-    esi: int | None = None
     if task == "esi1_detection":
-        if _esi1_is_positive(trace) is True:
-            esi = 1
-        else:
-            return None  # negative / unclear: true level not determinable here
-    elif task == "resource_prediction":
+        return 1 if _esi1_is_positive(trace) is True else None
+    if task == "resource_prediction":
         n = _parse_resource_count(trace)
         if n is None:
             return None
         esi = 3 if n >= 2 else (4 if n == 1 else 5)
-        # ESI tie-breaker: danger-zone vitals upgrade a low-acuity case to ESI 2.
         if _vitals_danger_zone(case.get("patient", {})):
             esi = 2
-    else:
-        return None
+        return esi
+    return None
 
-    sats = ESI_TO_SATS.get(esi, "")
-    return f"ESI {esi} / SATS {sats}"
+
+def derive_triage(case: dict) -> TriageLabel | None:
+    """Derive the structured triage label (framework + Action + ESI/SATS) from a
+    MIETIC case, or None when the level cannot be determined from this task.
+
+    MIETIC is adult ED data, so a derivable case is always the ESI framework.
+    Pediatric IMCI/ETAT and out-of-domain labels come from authored seeds and
+    the danger-sign labeler, not from this function.
+    """
+    if not case:
+        return None
+    esi = _derive_esi(case)
+    if esi is None:
+        return None
+    return TriageLabel(
+        framework="ESI",
+        action=ESI_TO_ACTION[esi],
+        esi=esi,
+        sats=ESI_TO_SATS.get(esi, ""),
+    )
+
+
+def derive_triage_label(case: dict) -> str | None:
+    """Human-readable "ESI N / SATS Color (...)" line, or None if not derivable.
+
+    Thin formatter over `derive_triage`, kept for callers that only need the
+    label string.
+    """
+    t = derive_triage(case)
+    return f"ESI {t.esi} / SATS {t.sats}" if t and t.esi is not None else None
+
+
+def triage_metadata(case: dict) -> dict:
+    """Triage fields to merge into a record's metadata, or {} if not derivable."""
+    t = derive_triage(case)
+    if not t:
+        return {}
+    return {"triage_framework": t.framework, "action": t.action,
+            "esi": t.esi, "sats": t.sats}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -236,16 +291,24 @@ def build_messages_record(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def build_hybrid_answer(case: dict, reasoning_trace: str) -> str:
-    """Concat reasoning_trace with explicit triage label section.
+    """Build the assistant answer: Action line first, then reasoning, then the
+    ESI/SATS code footer.
 
-    If no derivable label (e.g. task_type=other), return reasoning_trace
-    unchanged.
+    Action-first (Phase 2 under-triage fix) puts the disposition on line 1 and
+    keeps any resource/diagnostic mentions inside the reasoning body strictly
+    after the Action line. If no label is derivable (e.g. task_type=other), the
+    reasoning trace is returned unchanged.
     """
-    label = derive_triage_label(case)
     body = (reasoning_trace or "").strip()
-    if not label:
+    t = derive_triage(case)
+    if not t:
         return body
-    return f"{body}\n\n---\n**Triage recommendation**: {label}"
+    parts = [f"Action: {t.action}"]
+    if body:
+        parts += ["", body]
+    if t.framework == "ESI":
+        parts += ["", "---", f"**Triage**: ESI {t.esi} / SATS {t.sats}"]
+    return "\n".join(parts)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -261,7 +324,8 @@ __all__ = [
     "REPO_ROOT", "DATA_DIR", "PROCESSED_DIR", "REWRITE_DIR",
     "VLLMBatchClient", "VLLMConfig", "setup_logging",
     "load_envelope", "iter_envelope",
-    "derive_triage_label", "build_hybrid_answer",
+    "ESI_TO_ACTION", "TriageLabel", "derive_triage", "derive_triage_label",
+    "triage_metadata", "build_hybrid_answer",
     "build_messages_record", "MessagesRecord",
     "write_messages_jsonl", "write_jsonl",
 ]

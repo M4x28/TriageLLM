@@ -12,7 +12,6 @@ import importlib.util as _ilu
 import json
 import logging
 import random
-import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -52,26 +51,20 @@ def load_jsonl(path: Path) -> list[dict]:
     return records
 
 
-# Triage label parsers — identical to 6_evaluation/prompts.py so the header we
-# prepend matches exactly what the evaluator extracts from the gold answer.
-_ESI_RE = re.compile(r"\bESI\s*(\d)\b", re.IGNORECASE)
-_SATS_RE = re.compile(r"\bSATS\s+(Red|Orange|Yellow|Green)", re.IGNORECASE)
-_TRIAGE_HEADER_PREFIX = "**Triage:"
+_ACTION_PREFIX = "Action:"
 
 
 def prepend_triage_label(records: list[dict]) -> int:
-    """Prepend a label-first header to each labeled assistant message, in place.
+    """Ensure every record with a known Action leads with an `Action:` line.
 
-    Phase 2 fix: large models bury the ESI/SATS label at the end of a long
-    clinical narrative, where the generation budget truncates it. Placing the
-    label on the first line makes label presence independent of response
-    length. See docs/4_data_augment.md, "Phase 2 Addendum: Label-First
-    Reformatting".
-
-    Only records whose gold assistant message contains a parseable ESI or SATS
-    label are modified; guideline sections and identity records are left
-    unchanged. Idempotent: a message already starting with the header is
-    skipped. Returns the number of records modified.
+    Phase 2 under-triage fix (Action-first): the disposition must be on line 1
+    so it is independent of response length and never preceded by diagnostic
+    resources. Step 3 `build_hybrid_answer` already emits Action-first for
+    MIETIC cases and the authored seeds are written Action-first; this pass is a
+    metadata-driven safety net that prepends the Action line to any labeled
+    record still missing it. It NEVER fabricates an Action for records without
+    one in metadata (guideline sections, identity), and NEVER forces an ESI/SATS
+    code. Idempotent. Returns the number of records modified.
     """
     n_modified = 0
     for r in records:
@@ -79,21 +72,12 @@ def prepend_triage_label(records: list[dict]) -> int:
         if not messages or messages[-1].get("role") != "assistant":
             continue
         content = messages[-1].get("content", "")
-        if content.lstrip().startswith(_TRIAGE_HEADER_PREFIX):
+        if content.lstrip().startswith(_ACTION_PREFIX):
             continue
-        esi_m = _ESI_RE.search(content)
-        sats_m = _SATS_RE.search(content)
-        esi = esi_m.group(1) if esi_m else None
-        sats = sats_m.group(1).capitalize() if sats_m else None
-        if esi and sats:
-            header = f"**Triage: ESI {esi} / SATS {sats}**"
-        elif esi:
-            header = f"**Triage: ESI {esi}**"
-        elif sats:
-            header = f"**Triage: SATS {sats}**"
-        else:
+        action = (r.get("metadata") or {}).get("action")
+        if not action:
             continue
-        messages[-1]["content"] = f"{header}\n\n{content}"
+        messages[-1]["content"] = f"{_ACTION_PREFIX} {action}\n\n{content}"
         n_modified += 1
     return n_modified
 

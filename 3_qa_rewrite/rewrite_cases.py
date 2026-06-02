@@ -19,6 +19,7 @@ from common import (
     build_messages_record,
     iter_envelope,
     setup_logging,
+    triage_metadata,
     write_messages_jsonl,
 )
 from prompts import (
@@ -88,6 +89,7 @@ def main() -> int:
                 "style": style,
                 "task_type": case.get("task_type"),
                 "prompt_version": PROMPT_VERSION,
+                **triage_metadata(case),
             }
             record_id = f"qa_{rec['id']}_{style}"
             out_records.append(build_messages_record(
