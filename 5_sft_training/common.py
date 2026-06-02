@@ -50,31 +50,87 @@ class ModelSpec:
     ])
     needs_trust_remote_code: bool = False
     chat_template: str = "auto"  # transformers picks via tokenizer config
+    # QLoRA: load base in 4-bit NF4 to fit 27B+ on single L40S 46 GB
+    use_4bit_base: bool = False
+    # 8-bit INT8: more stable than NF4 for MoE architectures; 35B = 35 GB
+    use_8bit_base: bool = False
     notes: str = ""
 
 
 MODELS: dict[str, ModelSpec] = {
+    # ----- Phase 1 candidates (kept for backward compatibility) -----
     "qwen3-1.7b": ModelSpec(
         slug="qwen3-1.7b",
         hf_id="Qwen/Qwen3-1.7B",
         per_device_batch=4,
-        notes="Primary candidate. ChatML, GQA 16/8, thinking off via tokenizer kwarg.",
+        notes="Phase 1 primary. ChatML, GQA 16/8, thinking off via tokenizer kwarg.",
+    ),
+    "qwen3-1.7b-phase1": ModelSpec(
+        slug="qwen3-1.7b-phase1",
+        hf_id="Qwen/Qwen3-1.7B",
+        per_device_batch=4,
+        notes="Phase 1 primary checkpoint, preserved for the Phase 2 before/after "
+              "comparison: re-evaluated on the corrected validation gold.",
     ),
     "smollm3-3b": ModelSpec(
         slug="smollm3-3b",
         hf_id="HuggingFaceTB/SmolLM3-3B",
         per_device_batch=2,
-        notes="Apache, 11.2T train, IT support, NoPE 3:1. Dual-mode reasoning toggle.",
+        notes="Phase 1. Apache, 11.2T train, IT support, NoPE 3:1.",
     ),
     "gemma-3n-e2b": ModelSpec(
         slug="gemma-3n-e2b",
         hf_id="google/gemma-3n-E2B-it",
         per_device_batch=2,
-        needs_trust_remote_code=False,
+        lora_target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+        notes="Phase 1. MatFormer + Per-Layer Embeddings; LoRA only on attention.",
+    ),
+
+    # ----- Phase 2 candidates (mid tier, mobile 6-8 GB RAM target) -----
+    "qwen3-8b": ModelSpec(
+        slug="qwen3-8b",
+        hf_id="Qwen/Qwen3-8B",
+        per_device_batch=2,
+        notes="Phase 2 mid M1. 4.7x scaling vs Phase 1 primary. Q4_K_M ~4.5 GB.",
+    ),
+    "phi-4-mini": ModelSpec(
+        slug="phi-4-mini",
+        hf_id="microsoft/Phi-4-mini-instruct",
+        per_device_batch=4,
+        # Phi-4 uses merged qkv_proj + gate_up_proj. Verify target_modules at SFT time.
         lora_target_modules=[
-            "q_proj", "k_proj", "v_proj", "o_proj",
-        ],  # Gemma-3n MatFormer: restrict to attention layers (PLE/FFN non-standard)
-        notes="Gated, gemma license. MatFormer + Per-Layer Embeddings; LoRA only on attention to avoid PLE issues.",
+            "qkv_proj", "o_proj", "gate_up_proj", "down_proj",
+        ],
+        notes="Phase 2 mid M2. MIT, 22 languages incl. FR/AR/PT/IT, 128K ctx.",
+    ),
+    "medgemma-1.5-4b": ModelSpec(
+        slug="medgemma-1.5-4b",
+        hf_id="google/medgemma-1.5-4b-it",
+        per_device_batch=4,
+        notes="Phase 2 mid M3. Medical-pretrained SOTA Jan 2026 (91% MedQA). Multimodal text+image.",
+    ),
+
+    # ----- Phase 2 candidates (large tier, server inference) -----
+    "qwen3.6-27b": ModelSpec(
+        slug="qwen3.6-27b",
+        hf_id="Qwen/Qwen3.6-27B",
+        per_device_batch=1,
+        use_4bit_base=True,
+        notes="Phase 2 server S1. Apr 2026 flagship dense. QLoRA NF4 on L40S 46GB.",
+    ),
+    "qwen3.6-35b-moe": ModelSpec(
+        slug="qwen3.6-35b-moe",
+        hf_id="Qwen/Qwen3.6-35B-A3B",
+        per_device_batch=1,
+        lora_target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+        notes="Phase 2 server S2. MoE: 35B total / 3B active. BF16 LoRA on GPU 0+1 (70 GB).",
+    ),
+    "medgemma-27b": ModelSpec(
+        slug="medgemma-27b",
+        hf_id="google/medgemma-27b-text-it",
+        per_device_batch=1,
+        use_4bit_base=True,
+        notes="Phase 2 large L3. Medical 27B text-only it. QLoRA NF4 on L40S 46GB.",
     ),
 }
 

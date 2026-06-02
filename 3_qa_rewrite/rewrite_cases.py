@@ -37,7 +37,7 @@ OUT_PATH = REWRITE_DIR / "train_cases.jsonl"
 def main() -> int:
     log = setup_logging("triagellm.rewrite.cases")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="Qwen/Qwen3-32B")
+    ap.add_argument("--model", default="Qwen/Qwen3-8B")
     ap.add_argument("--limit", type=int, default=None,
                     help="Process only first N records (debug)")
     ap.add_argument("--max-tokens", type=int, default=200)

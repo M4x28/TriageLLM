@@ -117,3 +117,26 @@ python 3_qa_rewrite/run_all.py
 - `data/rewrite/train.jsonl` contains the merged SFT-ready dataset.
 - Every row has exactly three chat messages: system, user, assistant.
 - `metadata.style` is one of the six declared rewrite styles.
+
+---
+
+## Phase 2 Fix: ESI Label Derivation
+
+Found during Phase 2. The original `derive_triage_label` mapped `task_type`
+straight to ESI (`esi1_detection` -> ESI 1), but MIETIC tasks are *decision
+points* of the ESI algorithm, not the patient level. `esi1_detection` asks
+"does this patient need a life-saving intervention?", whose answer may be no.
+The old logic stamped every such case as `ESI 1 / SATS Red`, collapsing the
+whole labeled corpus onto one wrong label (100% ESI 1 / Red). This inflated
+Phase 1 accuracy (the model only had to echo a constant) and penalised the
+larger Phase 2 models that reasoned correctly.
+
+The fix reads the task answer from the reasoning trace:
+
+- `esi1_detection`: a clear life-saving verdict -> ESI 1; negative or unclear
+  -> no label (true level 2-5 is undeterminable from this task alone).
+- `resource_prediction`: parse the resource count -> ESI 3 (>=2), 4 (1),
+  5 (0); danger-zone vitals upgrade the case to ESI 2.
+
+Result: a realistic ESI 1/2/3/4/5 spread instead of a single constant label.
+Records left unlabeled keep their reasoning text as training content.

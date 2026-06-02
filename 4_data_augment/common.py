@@ -12,6 +12,7 @@ import importlib.util as _ilu
 import json
 import logging
 import random
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -49,6 +50,52 @@ def load_jsonl(path: Path) -> list[dict]:
                 continue
             records.append(json.loads(line))
     return records
+
+
+# Triage label parsers — identical to 6_evaluation/prompts.py so the header we
+# prepend matches exactly what the evaluator extracts from the gold answer.
+_ESI_RE = re.compile(r"\bESI\s*(\d)\b", re.IGNORECASE)
+_SATS_RE = re.compile(r"\bSATS\s+(Red|Orange|Yellow|Green)", re.IGNORECASE)
+_TRIAGE_HEADER_PREFIX = "**Triage:"
+
+
+def prepend_triage_label(records: list[dict]) -> int:
+    """Prepend a label-first header to each labeled assistant message, in place.
+
+    Phase 2 fix: large models bury the ESI/SATS label at the end of a long
+    clinical narrative, where the generation budget truncates it. Placing the
+    label on the first line makes label presence independent of response
+    length. See docs/4_data_augment.md, "Phase 2 Addendum: Label-First
+    Reformatting".
+
+    Only records whose gold assistant message contains a parseable ESI or SATS
+    label are modified; guideline sections and identity records are left
+    unchanged. Idempotent: a message already starting with the header is
+    skipped. Returns the number of records modified.
+    """
+    n_modified = 0
+    for r in records:
+        messages = r.get("messages", [])
+        if not messages or messages[-1].get("role") != "assistant":
+            continue
+        content = messages[-1].get("content", "")
+        if content.lstrip().startswith(_TRIAGE_HEADER_PREFIX):
+            continue
+        esi_m = _ESI_RE.search(content)
+        sats_m = _SATS_RE.search(content)
+        esi = esi_m.group(1) if esi_m else None
+        sats = sats_m.group(1).capitalize() if sats_m else None
+        if esi and sats:
+            header = f"**Triage: ESI {esi} / SATS {sats}**"
+        elif esi:
+            header = f"**Triage: ESI {esi}**"
+        elif sats:
+            header = f"**Triage: SATS {sats}**"
+        else:
+            continue
+        messages[-1]["content"] = f"{header}\n\n{content}"
+        n_modified += 1
+    return n_modified
 
 
 def length_filter(records: list[dict], max_chars: int = 4000) -> tuple[list[dict], int]:
@@ -137,4 +184,5 @@ __all__ = [
     "VLLMBatchClient", "VLLMConfig", "setup_logging",
     "load_jsonl", "write_jsonl",
     "length_filter", "stratify_split", "oversample", "shuffle_deterministic",
+    "prepend_triage_label",
 ]

@@ -27,6 +27,7 @@ from common import (
     length_filter,
     load_jsonl,
     oversample,
+    prepend_triage_label,
     setup_logging,
     shuffle_deterministic,
     stratify_split,
@@ -79,6 +80,12 @@ def main() -> int:
     log.info("loading %s", in_path)
     records = load_jsonl(in_path)
     log.info("loaded %d records", len(records))
+
+    # Phase 2: move the triage label to the first line of labeled answers,
+    # before length filtering so the filter sees the final text.
+    n_labeled = prepend_triage_label(records)
+    log.info("label-first reformat: prepended header to %d/%d records",
+             n_labeled, len(records))
 
     records, dropped = length_filter(records, max_chars=args.max_chars)
     log.info("length filter: dropped %d (> %d chars), kept %d",

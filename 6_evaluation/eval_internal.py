@@ -58,14 +58,22 @@ def _compute_validation_nll(model, tokenizer, records: list[dict],
     total_tokens = 0
     for rec in sample:
         prompt = tokenizer.apply_chat_template(rec["messages"], tokenize=False)
-        ids = tokenizer(prompt, return_tensors="pt").to(model.device)
-        with torch.no_grad():
-            out = model(**ids, labels=ids["input_ids"])
+        ids = tokenizer(prompt, return_tensors="pt").to(next(model.parameters()).device)
+        try:
+            with torch.no_grad():
+                out = model(**ids, labels=ids["input_ids"])
+            loss_val = float(out.loss.item())
+        except Exception:
+            # Large-vocab models (Qwen3.6) trigger CUDA assert in cross_entropy
+            # when running NLL with labels on multi-GPU device_map. Skip record.
+            continue
+        if not math.isfinite(loss_val):
+            continue
         n_tok = ids["input_ids"].numel()
-        total_loss += float(out.loss.item()) * n_tok
+        total_loss += loss_val * n_tok
         total_tokens += n_tok
-    avg_nll = total_loss / max(total_tokens, 1)
-    ppl = math.exp(avg_nll) if avg_nll < 50 else float("inf")
+    avg_nll = total_loss / max(total_tokens, 1) if total_tokens > 0 else float("nan")
+    ppl = math.exp(avg_nll) if math.isfinite(avg_nll) and avg_nll < 50 else float("inf")
     return avg_nll, ppl, total_tokens
 
 
@@ -114,6 +122,11 @@ def _eval_triage_and_latency(model, tokenizer, records: list[dict],
     correct_esi = 0
     correct_sats = 0
     n_esi = n_sats = 0
+    # Phase 2 format compliance counters: how many responses contain a
+    # parseable triage label, regardless of whether it matches gold.
+    esi_present = 0
+    sats_present = 0
+    either_present = 0
     latencies_s: list[float] = []
     tokens_emitted: list[int] = []
     per_style: dict[str, dict[str, int]] = defaultdict(
@@ -129,6 +142,14 @@ def _eval_triage_and_latency(model, tokenizer, records: list[dict],
                             messages[0]["content"], messages[1]["content"],
                             max_new_tokens=max_new_tokens)
         pred_esi, pred_sats = extract_triage_labels(text)
+
+        # Format compliance: was a triage label emitted at all?
+        if pred_esi is not None:
+            esi_present += 1
+        if pred_sats is not None:
+            sats_present += 1
+        if pred_esi is not None or pred_sats is not None:
+            either_present += 1
 
         out_tokens = len(tokenizer(text, add_special_tokens=False)["input_ids"])
         latencies_s.append(dt)
@@ -182,10 +203,19 @@ def _eval_triage_and_latency(model, tokenizer, records: list[dict],
     def acc(num: int, den: int) -> float:
         return round(num / den, 4) if den else 0.0
 
+    n_triage = len(triage_sample)
     return {
-        "n_labeled_samples": len(triage_sample),
+        "n_labeled_samples": n_triage,
         "esi": {"n": n_esi, "correct": correct_esi, "accuracy": acc(correct_esi, n_esi)},
         "sats": {"n": n_sats, "correct": correct_sats, "accuracy": acc(correct_sats, n_sats)},
+        "format": {
+            "esi_present": esi_present,
+            "sats_present": sats_present,
+            "either_present": either_present,
+            "esi_present_rate": acc(esi_present, n_triage),
+            "sats_present_rate": acc(sats_present, n_triage),
+            "either_present_rate": acc(either_present, n_triage),
+        },
         "pediatric": {
             "n": pediatric_total,
             "metric": "gold_keyword_overlap",
@@ -224,6 +254,8 @@ def main() -> int:
                          "those with explicit gold labels)")
     ap.add_argument("--max-new-tokens", type=int, default=1024,
                     help="cap per-record generation length")
+    ap.add_argument("--load-4bit", action="store_true",
+                    help="load merged checkpoint in BnB NF4 4-bit (single GPU, faster eval)")
     args = ap.parse_args()
 
     spec = MODELS[args.model]
@@ -231,8 +263,8 @@ def main() -> int:
     out_path = INTERNAL_DIR / f"{spec.slug}.json"
     log.info("eval_internal model=%s -> %s", spec.slug, out_path)
 
-    log.info("loading merged checkpoint")
-    tokenizer, model = load_merged_model(spec)
+    log.info("loading merged checkpoint (4bit=%s)", args.load_4bit)
+    tokenizer, model = load_merged_model(spec, use_4bit=args.load_4bit)
 
     log.info("loading validation JSONL")
     records = load_jsonl(Path(args.validation_jsonl))
@@ -250,11 +282,13 @@ def main() -> int:
         model, tokenizer, records, args.n_triage_samples, log,
         max_new_tokens=args.max_new_tokens,
     )
-    log.info("ESI acc=%.4f SATS acc=%.4f pediatric recall=%.4f tok/s=%.2f",
+    log.info("ESI acc=%.4f SATS acc=%.4f pediatric recall=%.4f tok/s=%.2f "
+             "fmt either_present=%.4f",
              triage_metrics["esi"]["accuracy"],
              triage_metrics["sats"]["accuracy"],
              triage_metrics["pediatric"]["recall"],
-             triage_metrics["latency"]["tokens_per_s"])
+             triage_metrics["latency"]["tokens_per_s"],
+             triage_metrics["format"]["either_present_rate"])
 
     summary = {
         "model": spec.slug,

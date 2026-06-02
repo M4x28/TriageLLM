@@ -33,15 +33,15 @@ Output:
 
 `eval_internal.py` scores each model on the Step 4 validation set.
 
-| Metric | Definition |
-| --- | --- |
-| Validation NLL / perplexity | token-level loss on validation records |
-| ESI accuracy | parsed `ESI N` match against gold |
-| SATS accuracy | parsed `SATS <color>` match against gold |
-| Pediatric recall | keyword-overlap recall on WHO IMCI / WHO ETAT records |
-| Refusal rate | refusal classifier over 10 identity probes |
-| Latency | generated tokens per second on BF16 GPU |
-| Style breakdown | ESI/SATS accuracy by `metadata.style` |
+| Metric                      | Definition                                            |
+| --------------------------- | ----------------------------------------------------- |
+| Validation NLL / perplexity | token-level loss on validation records                |
+| ESI accuracy                | parsed `ESI N` match against gold                     |
+| SATS accuracy               | parsed `SATS <color>` match against gold              |
+| Pediatric recall            | keyword-overlap recall on WHO IMCI / WHO ETAT records |
+| Refusal rate                | refusal classifier over 10 identity probes            |
+| Latency                     | generated tokens per second on BF16 GPU               |
+| Style breakdown             | ESI/SATS accuracy by `metadata.style`                 |
 
 The refusal metric counts only plain refusals without actionable escalation content. A disclaimer plus a useful next step is not counted as refusal.
 
@@ -49,11 +49,11 @@ The refusal metric counts only plain refusals without actionable escalation cont
 
 `eval_external.py` runs lightweight medical QA benchmarks from Hugging Face:
 
-| Benchmark | Split / subset | Default sample size | Metric |
-| --- | --- | ---: | --- |
-| MedQA-USMLE | English test | 100 | 4-choice accuracy |
-| PubMedQA | `pqa_labeled` | 100 | yes/no/maybe accuracy |
-| MMLU clinical knowledge | test | 50 | 4-choice accuracy |
+| Benchmark               | Split / subset | Default sample size | Metric                |
+| ----------------------- | -------------- | ------------------: | --------------------- |
+| MedQA-USMLE             | English test   |                 100 | 4-choice accuracy     |
+| PubMedQA                | `pqa_labeled`  |                 100 | yes/no/maybe accuracy |
+| MMLU clinical knowledge | test           |                  50 | 4-choice accuracy     |
 
 External QA scores are reported but not included in the deployment composite because they are general medical exam tasks rather than LMIC triage tasks.
 
@@ -77,11 +77,11 @@ composite = 0.25 * esi_accuracy
 
 Hard gates:
 
-| Gate | Threshold |
-| --- | ---: |
-| Minimum BF16 GPU latency | 10 tok/s |
-| Maximum refusal rate | 30% |
-| Minimum pediatric recall | 0.40 |
+| Gate                     | Threshold |
+| ------------------------ | --------: |
+| Minimum BF16 GPU latency |  10 tok/s |
+| Maximum refusal rate     |       30% |
+| Minimum pediatric recall |      0.40 |
 
 ## Execution
 
@@ -117,16 +117,24 @@ python 6_evaluation/summarize.py
 
 ## Result Summary
 
-| Model | ESI | SATS | Pediatric recall | Refusal rate | BF16 tok/s | Gate | Composite |
-| --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |
-| Qwen3-1.7B | 0.928 | 0.928 | 0.7867 | 0.000 | 59.89 | pass | 0.9285 |
-| SmolLM3-3B | 0.948 | 0.948 | 0.3400 | 0.000 | 64.34 | fail pediatric | 0.8472 |
-| Gemma-3n-E2B-it | 0.000 | 0.000 | 0.5500 | 0.000 | 22.00 | pass | 0.3980 |
+| Model           |   ESI |  SATS | Pediatric recall | Refusal rate | BF16 tok/s | Gate           | Composite |
+| --------------- | ----: | ----: | ---------------: | -----------: | ---------: | -------------- | --------: |
+| Qwen3-1.7B      | 0.928 | 0.928 |           0.7867 |        0.000 |      59.89 | pass           |    0.9285 |
+| SmolLM3-3B      | 0.948 | 0.948 |           0.3400 |        0.000 |      64.34 | fail pediatric |    0.8472 |
+| Gemma-3n-E2B-it | 0.000 | 0.000 |           0.5500 |        0.000 |      22.00 | pass           |    0.3980 |
 
 Decision: `qwen3-1.7b` is the Phase 1 primary model for deployment.
 
-## Out of Scope
+## Phase 2 Fix: corrected-gold and re-evaluation
 
-- GGUF conversion and quantized evaluation.
-- Android device validation.
-- DPO or preference tuning.
+Phase 2 found the Phase 1 gold label was degenerate (every labeled case was
+`ESI 1 / SATS Red`). The 0.928 above only measured echoing that constant. After fixing the pipeline, the Phase 1 primary was retrained, and both the old and new checkpoints were re-evaluated on the corrected validation gold.
+
+| Model / gold                  |   ESI |  SATS | Format | Pediatric |
+| ----------------------------- | ----: | ----: | -----: | --------: |
+| old model / old (broken) gold | 0.928 | 0.928 |    n/a |     0.787 |
+| old model / corrected gold    | 0.226 | 0.216 |  0.392 |     0.933 |
+| new model / corrected gold    | 0.510 | 0.539 |  0.652 |     0.571 |
+
+Takeaways: the 0.928 was an artifact the same model drops to 0.226 on the real gold; at equal gold the fix more than doubles ESI accuracy and format
+compliance; ESI and SATS now diverge, confirming a real label space.

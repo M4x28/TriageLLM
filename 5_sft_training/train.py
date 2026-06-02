@@ -43,7 +43,7 @@ def main() -> int:
     log.info("model=%s out=%s", spec.slug, out_dir)
 
     import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from peft import LoraConfig
     from trl import SFTConfig, SFTTrainer
 
@@ -53,23 +53,44 @@ def main() -> int:
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    bnb_config = None
+    if spec.use_4bit_base:
+        # QLoRA: base model in 4-bit NF4, LoRA adapter in bf16.
+        # Reduces 27B from ~54 GB to ~14 GB, fits single L40S 46 GB.
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+        log.info("QLoRA mode: loading base in 4-bit NF4")
+    elif spec.use_8bit_base:
+        # INT8: more numerically stable than NF4 for MoE architectures.
+        # 35B-MoE at INT8 = ~35 GB; requires 2x GPU (CUDA_VISIBLE_DEVICES=0,1).
+        bnb_config = BitsAndBytesConfig(load_in_8bit=True)
+        log.info("INT8 mode: loading base in 8-bit")
+
+    load_kwargs = dict(
+        quantization_config=bnb_config,
+        device_map="auto",
+        trust_remote_code=spec.needs_trust_remote_code,
+    )
+    if bnb_config is None:
+        load_kwargs["torch_dtype"] = torch.bfloat16
+
     try:
         model = AutoModelForCausalLM.from_pretrained(
             spec.hf_id,
-            torch_dtype=torch.bfloat16,
-            device_map="cuda:0",
             attn_implementation="flash_attention_2",
-            trust_remote_code=spec.needs_trust_remote_code,
+            **load_kwargs,
         )
         log.info("loaded with flash_attention_2")
     except (ImportError, ValueError) as e:
         log.warning("flash_attention_2 unavailable (%s); falling back to sdpa", e)
         model = AutoModelForCausalLM.from_pretrained(
             spec.hf_id,
-            torch_dtype=torch.bfloat16,
-            device_map="cuda:0",
             attn_implementation="sdpa",
-            trust_remote_code=spec.needs_trust_remote_code,
+            **load_kwargs,
         )
 
     log.info("loading datasets")

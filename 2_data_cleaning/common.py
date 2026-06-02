@@ -496,10 +496,14 @@ def sliding_window(text: str, window: int = 1500, overlap: int = 200) -> list[st
 # vLLM batch client (lazy import)
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Phase 2: switched the default ETL model from Qwen3.6-27B (a multimodal
+# bazooka needing a vLLM nightly stack) to Qwen3-8B, the text-only model the
+# preprocessing study recommends as the lower-cost ETL choice. The extraction
+# task here is simple slot filling, so 8B + guided JSON is more than enough.
 @dataclass
 class VLLMConfig:
-    model_name: str = "Qwen/Qwen3.6-27B"
-    fallback_model: str = "Qwen/Qwen3.5-9B-Instruct"
+    model_name: str = "Qwen/Qwen3-8B"
+    fallback_model: str = "Qwen/Qwen3-4B"
     tensor_parallel_size: int = 1
     max_model_len: int = 8192
     gpu_memory_utilization: float = 0.85

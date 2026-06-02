@@ -77,12 +77,18 @@ def load_jsonl(path: Path) -> list[dict]:
     return records
 
 
-def resolve_checkpoint(spec: ModelSpec, *, allow_reference: bool = False) -> str:
+def resolve_checkpoint(spec: ModelSpec, *,
+                       allow_reference: bool = False,
+                       baseline: bool = False) -> str:
     """Return the path or HF id to load weights from.
 
     For the 3 SFT candidates: prefer the merged checkpoint produced by step 5.
     For the reference model (MedGemma): always load from HF id.
+    For Phase 2 `baseline=True` runs: load the base model directly from HF id
+    (no merged checkpoint required) so we can probe pre-SFT capabilities.
     """
+    if baseline:
+        return spec.hf_id
     if spec.slug == REFERENCE_MODEL_SLUG:
         if not allow_reference:
             raise ValueError("reference model must be opted in explicitly")
@@ -96,25 +102,47 @@ def resolve_checkpoint(spec: ModelSpec, *, allow_reference: bool = False) -> str
     )
 
 
-def load_merged_model(spec: ModelSpec, *, allow_reference: bool = False):
-    """Load tokenizer + model in bf16 on the visible CUDA device."""
-    import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+def load_merged_model(spec: ModelSpec, *,
+                      allow_reference: bool = False,
+                      baseline: bool = False,
+                      use_4bit: bool = False):
+    """Load tokenizer + model on the visible CUDA device.
 
-    source = resolve_checkpoint(spec, allow_reference=allow_reference)
+    use_4bit=True: BnB NF4 4-bit (27B → ~14 GB, fits single L40S).
+    Faster inference than BF16 multi-GPU pipeline parallelism.
+    """
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    source = resolve_checkpoint(spec, allow_reference=allow_reference,
+                                baseline=baseline)
     tokenizer = AutoTokenizer.from_pretrained(
         source, trust_remote_code=spec.needs_trust_remote_code,
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(
-        source,
-        torch_dtype=torch.bfloat16,
-        device_map="cuda:0",
-        trust_remote_code=spec.needs_trust_remote_code,
-    )
-    model.train(False)  # inference mode
+    if use_4bit:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            source,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=spec.needs_trust_remote_code,
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            source,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            trust_remote_code=spec.needs_trust_remote_code,
+        )
+    model.train(False)
     return tokenizer, model
 
 
@@ -133,14 +161,20 @@ def generate(model, tokenizer, system: str, user: str,
         {"role": "user", "content": user},
     ]
     try:
+        # enable_thinking=False suppresses Qwen3 chain-of-thought traces.
         prompt = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True,
+            enable_thinking=False,
         )
     except Exception:
-        # Fallback for tokenizers without a registered chat template.
-        prompt = f"<system>{system}</system>\n<user>{user}</user>\n<assistant>"
+        try:
+            prompt = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+            )
+        except Exception:
+            prompt = f"<system>{system}</system>\n<user>{user}</user>\n<assistant>"
 
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    inputs = tokenizer(prompt, return_tensors="pt").to(next(model.parameters()).device)
     t0 = time.time()
     with torch.no_grad():
         out = model.generate(
