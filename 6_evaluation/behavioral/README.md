@@ -1,10 +1,6 @@
 # Behavioral evaluation (Bloom)
 
-Phase 2 advanced evaluation. Where the static evaluators (`../static_evaluation/`)
-score fixed prompts with regex, this subpackage uses **Bloom** (Meridian Labs,
-on the `inspect_ai` substrate — the same family as Petri) to **auto-generate**
-behavioral test suites for triage-specific safety failure modes and score them
-with an LLM judge.
+Phase 2 advanced evaluation.
 
 Everything runs **local**: no external API. The target model and the
 auditor/judge model are each served behind a vLLM OpenAI-compatible endpoint;
@@ -65,14 +61,8 @@ description; see `seeds/false_reassurance/BEHAVIOR.md`). Frontmatter fields:
 (e.g. `noise`, `emotional_pressure`), `instructions`, `target_sysprompt_prefix`.
 Then run it as above.
 
-## Notes / gotchas (spike-verified)
+## Notes
 
 - The vLLM server MUST run with `--enable-auto-tool-choice --tool-call-parser
   hermes` (Qwen tool calling) and `--max-model-len 32768` (Bloom requests up to
   8192 completion tokens). `serve_model.sh` sets these.
-- Auditor/judge quality bounds result quality. We use a local model now; swap a
-  service to an external API in `endpoints.py` (env base_url/key) when budget
-  allows, without changing callers.
-- **Petri-ready:** Petri (same Meridian / `inspect_ai` family) drops in beside
-  this, reusing `endpoints.py` and the `.venv-bloom`, and consumes these Bloom
-  outputs as its input.
