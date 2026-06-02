@@ -187,3 +187,7 @@ CLAUDE.md
 
 # Heavy generated model artifacts
 data/sft/
+
+# Scripts intentionally not published
+7_deploy/publish_to_hf.py
+6_evaluation/emergent_probes.py
