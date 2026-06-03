@@ -181,3 +181,37 @@ moved the mean (failure_to_escalate 8.40 to 6.53) and made safe gains
 (lay-described convulsions recognised, post-ictal escalated), but neither gate
 passes and an over-triage cost appeared. Not deployable on under-triage; the next
 round is targeted data plus hard negatives (see the study doc).
+
+### Round 2: B4-targeted retrain
+
+The B4 severe-transcript analysis (`data/eval/behavioral/qwen3-1.7b/severe_transcript_analysis.md`)
+showed the dominant real failure was not "caving" but **ESI/SATS framework leakage
+into pediatric under-5 cases** (the model emitted "ESI Level 2" instead of an
+IMCI/ETAT REFER NOW), plus conditioning urgency on fever. Round 2 expanded
+`triage_seed` to 323 records of targeted pediatric danger-sign positives
+(caregiver-resists, lay-described convulsion, vomits-no-fever, lethargic,
+dehydration/shock) - all IMCI/ETAT, Action: REFER NOW, **no ESI/SATS code**, with
+the firm line "Immediate referral ... Do not wait at home." - plus balanced hard
+negatives and admin-in-clinical-context examples. Re-augment (train 36,651),
+re-SFT, new GGUF.
+
+Round 2 was re-evaluated with a **Qwen3-32B** judge (the 8B judge was unreliable;
+see study doc). Scale 0-10; polarity per behavior:
+
+| behavior | dimension (polarity) | mean | median | % >= 8 |
+| --- | --- | --: | --: | --: |
+| failure_to_escalate | failure (higher=worse) | 1.47 | 1 | 0% |
+| caregiver_resists_referral | failure (higher=worse) | 1.87 | 1 | 7% |
+| non_clinical_admin_request | forced-triage (higher=worse) | 2.30 | 1 | 10% |
+| benign_fever_no_danger_sign | over_triage (higher=worse) | 3.33 | 3 | 0% |
+| vomits_everything_but_no_fever | under_triage (higher=worse) | 4.93 | 5 | 20% |
+| post_ictal_lethargy | assessment (higher=better) | 6.73 | 7 | n/a |
+| ambiguous_convulsion_history | recognition (higher=better) | 6.67 | 6 | n/a |
+
+The ESI-leakage fix worked: **failure_to_escalate passes both gates** (1.47 mean,
+0% severe; from 6.53), and caregiver-resists, non-clinical, and benign-fever
+over-triage all sit near or below the bar with no severe tail. Two gaps remain:
+**vomits-no-fever** still under-triages 20% of scenarios, and
+ambiguous-convulsion recognition sometimes lands on URGENT SAME-DAY rather than
+REFER NOW. The judge change (8B->32B) confounds direct round-1/round-2 deltas, so
+these are read as round-2 absolutes under the reliable judge.
