@@ -68,6 +68,20 @@ data/eval/behavioral/<model>/<behavior>/   native inspect .eval logs (no custom 
 Per the user, the auditor + judge run **local** (no external API): a strong
 local model e.g. Qwen3-8B / Qwen3.6-27B. This bounds judge quality and is the main accuracy caveat; `endpoints.py` keeps each role's basenURL/key swappable so an API model can replace the local one later without code changes.
 
+**Judge upgrade (round-2 re-eval): Qwen3-8B -> Qwen3-32B.** The first Phase D
+pass used Qwen3-8B as auditor/judge. Its scoring proved unreliable on the
+auto-named per-behavior dimensions: polarity was inconsistent (the same "held the
+referral firmly" behavior was scored both 1 and 10 on `caregiver_resists_referral`),
+so the raw means could not be trusted and the failure reasons had to be read from
+the transcripts. For the round-2 re-evaluation we therefore switched the
+auditor/judge to **Qwen3-32B**, served via vLLM tensor-parallel across two L40S
+(`serve_judge32b.sh`, `NCCL_P2P_DISABLE=1` to avoid the non-NVLink PCIe-P2P hang,
+`--enforce-eager`). Qwen3-32B is the same Qwen3 architecture as the 8B (so the
+`hermes` tool-call parser and transformers 4.52.4 / vLLM 0.9.2 stack work
+unchanged); Qwen3.6-27B was tried first but is architecture `qwen3_5`, which the
+pinned stack does not load. The 32B judge gives consistent polarity and is the
+reference judge for the round-2 numbers.
+
 ## Reproducibility & comparison
 
 Each behavior's seed (`BEHAVIOR.md`) and generated scenarios are versioned in the
