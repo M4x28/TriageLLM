@@ -1,22 +1,24 @@
 """Generate triage_seed.jsonl: authored triage-behavior examples.
 
-Phase 2 under-triage fix. This is the primary carrier of three signals the
-MIETIC-dominated corpus lacks:
-  1. pediatric danger sign -> Action: REFER NOW (the failure_to_escalate gap),
-  2. genuinely non-urgent child  -> Action: HOME CARE / ROUTINE (anti over-triage),
-  3. non-clinical / out-of-domain -> Action: OUT-OF-SCOPE, no forced ESI.
+Phase 2 under-triage fix, round 2 (targeted at the B4 severe-transcript analysis
+in data/eval/behavioral/qwen3-1.7b/severe_transcript_analysis.md). The dominant
+real failure was ESI/SATS framework leakage into pediatric under-5 cases (the
+model emits "ESI Level 2" instead of IMCI/ETAT REFER NOW) plus conditioning
+urgency on fever. So every pediatric danger-sign example here is IMCI/ETAT, leads
+with `Action: REFER NOW`, carries NO ESI/SATS code, and states the firm referral
+sentence. Balanced hard negatives prevent over-triage; admin-in-clinical-context
+examples prevent forced triage labels.
 
 Same safety pattern as generate_identity_seed.py: the ANSWER is template-fixed
-(clinically reviewed, never LLM-generated) and the LLM only paraphrases the
-QUESTION to add surface diversity. Answers are Action-first, anchored to WHO
-IMCI/ETAT, contain no infant (<3mo) dosing and no drug dose without deferring to
+(clinically reviewed, never LLM-generated); the LLM only paraphrases the QUESTION
+for surface diversity. No infant (<3mo) dosing, no drug dose without deferring to
 a clinician.
 
 Runs ONCE on the server; output committed for reproducibility.
 
 Usage (server):
   python 4_data_augment/generate_triage_seed.py \
-    --model Qwen/Qwen3-32B --variants 8 --out 4_data_augment/triage_seed.jsonl
+    --model Qwen/Qwen3-8B --variants 8 --out 4_data_augment/triage_seed.jsonl
 """
 from __future__ import annotations
 
@@ -37,90 +39,178 @@ PERSONA_DESC = {
     "field_worker_query": "triage staff in a low-resource clinic",
 }
 
+# Mandatory sentence in every danger-sign (REFER NOW) answer.
+_REFER = ("Immediate referral to the nearest health facility is required. "
+          "Do not wait at home.")
+
+
+def _refer(body: str) -> str:
+    """Compose a REFER NOW answer: Action line, the firm referral sentence, body.
+    No ESI/SATS code (IMCI/ETAT framework)."""
+    return f"Action: REFER NOW\n\n{_REFER} {body}"
+
+
 # Authored seeds. `framework`/`action` populate metadata so step 4 oversampling
-# and the Action-first guard treat them like derived clinical records.
+# and the Action-first guard treat them like derived clinical records. Pediatric
+# danger-sign answers deliberately carry NO ESI/SATS code.
 SEEDS: list[dict] = [
-    # ───── pediatric danger sign -> REFER NOW (IMCI/ETAT) ─────
-    {
-        "persona": "caregiver_query", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "My 3-year-old just had a fit, his whole body shook and his eyes rolled back, and now he is very sleepy.",
-        "a": "Action: REFER NOW\n\nA convulsion (the shaking with eyes rolling back) and the drowsiness afterwards are WHO IMCI/ETAT danger signs in a young child. Take him to the nearest health facility immediately, even if he now seems to be recovering. On the way, lay him on his side, do not put anything in his mouth, and keep him warm. The facility may check his blood sugar, test and treat for malaria or other infection, and give emergency care if needed.",
-    },
-    {
-        "persona": "caregiver_query", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "My baby vomits everything I give her and has refused to breastfeed since this morning.",
-        "a": "Action: REFER NOW\n\nNot being able to feed or drink, and vomiting everything, are WHO IMCI danger signs. A young child can become dehydrated and weak very quickly. Take her to the nearest health facility now. You can offer small sips on the way if she will take them, but do not delay going. The facility can rehydrate her and find the cause of the vomiting.",
-    },
-    {
-        "persona": "field_worker_query", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "Child about 2 years brought in floppy and very hard to wake, fever for 3 days. We have limited supplies here.",
-        "a": "Action: REFER NOW\n\nLethargy or being difficult to wake is an ETAT emergency sign. This child needs urgent referral to the nearest facility with inpatient capacity. While you arrange transport, follow ETAT: check and support airway and breathing, check blood glucose and treat hypoglycaemia if you can, keep the child warm, and begin malaria assessment. Do not wait for test results before referring.",
-    },
-    {
-        "persona": "clinician_handoff", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "4-year-old, barking cough, stridor at rest, chest indrawing. Disposition?",
-        "a": "Action: REFER NOW\n\nStridor in a calm child together with chest indrawing is an ETAT emergency sign of severe respiratory distress. Refer now to a facility able to manage the airway. Give oxygen if available and keep the child calm and upright during transport. The receiving facility may provide nebulised treatment, steroids, or airway support as indicated.",
-    },
-    {
-        "persona": "caregiver_query", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "My child has had watery diarrhea all day, his eyes look sunken and when I pinch the skin it stays up.",
-        "a": "Action: REFER NOW\n\nSunken eyes and skin that stays pinched are signs of severe dehydration, a WHO IMCI danger sign. Take your child to the nearest health facility now. Keep giving oral rehydration solution or clean fluids in small, frequent sips on the way. The facility may give fluids through a drip and treat the cause of the diarrhea.",
-    },
-    {
-        "persona": "field_worker_query", "category": "danger_sign",
-        "framework": "IMCI_ETAT", "action": "REFER NOW",
-        "q": "Mother says her child 'shook all over for a few minutes and then was confused.' No fit now. Can we manage locally?",
-        "a": "Action: REFER NOW\n\nA described episode of shaking all over followed by confusion should be treated as a convulsion with a post-ictal state, an ETAT/IMCI danger sign, even though the child is not fitting now. Refer to the nearest facility for assessment. Do not delay because the episode has stopped or because the history is uncertain. The facility can check blood sugar, screen for malaria and meningitis, and observe.",
-    },
-    # ───── genuinely non-urgent child -> HOME CARE / ROUTINE (anti over-triage) ─────
-    {
-        "persona": "caregiver_query", "category": "non_urgent",
-        "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
-        "q": "My 4-year-old has had a mild fever since yesterday but she is drinking, eating, and playing normally.",
-        "a": "Action: HOME CARE + RETURN ADVICE\n\nA child with a mild fever who is alert, drinking, eating, and playing has no WHO IMCI danger signs right now. You can care for her at home: give plenty of fluids, keep her comfortable, and use weight-based paracetamol only if a health worker has advised it. Return to a health facility immediately if she develops any danger sign: stops drinking or feeding, vomits everything, has a convulsion, breathes fast or with difficulty, becomes drowsy or hard to wake, or if the fever lasts more than 2-3 days.",
-    },
-    {
-        "persona": "caregiver_query", "category": "non_urgent",
-        "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
-        "q": "My toddler has a runny nose and a slight cough but is active and feeding well.",
-        "a": "Action: HOME CARE + RETURN ADVICE\n\nA runny nose and a mild cough in a child who is active and feeding well is usually a simple cold with no danger signs. Care for her at home with fluids, normal feeding, and clearing the nose so she breathes more easily. Return urgently if you see fast or difficult breathing, chest indrawing, the child stops feeding or drinking, becomes drowsy, or has a convulsion.",
-    },
-    {
-        "persona": "field_worker_query", "category": "non_urgent",
-        "framework": "IMCI_ETAT", "action": "ROUTINE FOLLOW-UP",
-        "q": "5-year-old, mild sore throat, no fever, eating normally, breathing normal. Should I refer?",
-        "a": "Action: ROUTINE FOLLOW-UP\n\nWith no fever, normal breathing, and normal feeding, there are no IMCI/ETAT danger signs and no need for urgent referral. Manage the symptoms and arrange routine follow-up. Advise the caregiver to return promptly if the child develops fast breathing, stops eating or drinking, becomes drowsy, or develops a high fever.",
-    },
-    # ───── non-clinical / out-of-domain -> OUT-OF-SCOPE (no forced ESI) ─────
-    {
-        "persona": "caregiver_query", "category": "out_of_domain",
-        "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
-        "q": "Can you write an email to my child's school explaining she will be absent?",
-        "a": "Action: OUT-OF-SCOPE\n\nThis is not a clinical triage question, so there is no triage assessment to give. I am a triage decision-support assistant focused on recognizing danger signs and deciding the right level of care. If your child is unwell, tell me her symptoms and I can help you judge what care she may need.",
-    },
-    {
-        "persona": "caregiver_query", "category": "out_of_domain",
-        "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
-        "q": "Translate 'good morning, how are you' into French for me.",
-        "a": "Action: OUT-OF-SCOPE\n\nThat is a general request, not a clinical triage question, so I will not assign a triage level. I am built to assess danger signs and decide the right level of care for a patient. If you have a patient or a symptom to triage, describe it and I will help.",
-    },
-    {
-        "persona": "field_worker_query", "category": "out_of_domain",
-        "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
-        "q": "What is 25 times 17?",
-        "a": "Action: OUT-OF-SCOPE\n\nThis is not a clinical triage question, so there is no triage disposition here. I focus on recognizing danger signs and recommending the right level of care. If you give me a patient's symptoms, I will help you triage them.",
-    },
-    {
-        "persona": "clinician_handoff", "category": "out_of_domain",
-        "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
-        "q": "Draft a stock order for amoxicillin for our clinic pharmacy.",
-        "a": "Action: OUT-OF-SCOPE\n\nStock ordering is an administrative task, not a clinical triage decision, so I will not give a triage level or a prescription. I can help you triage a specific patient and cite WHO treatment criteria for that case, but procurement and pharmacy orders are outside what I do.",
-    },
+    # ===== caregiver resists referral (danger sign present, hold the referral) =====
+    {"persona": "caregiver_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My child just had a convulsion but the clinic is three hours away and I have no transport. Can I just watch him at home tonight?",
+     "a": _refer("A convulsion in a young child is a danger sign and home monitoring is not safe, however far the clinic is. Arrange the fastest transport you can (neighbour, motorbike, community health worker); keep him on his side and do not give anything by mouth if he is drowsy. The distance does not change the need to go now.")},
+    {"persona": "caregiver_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My baby won't feed and is very weak, but we truly have no money for the hospital. Isn't there something I can do here instead?",
+     "a": _refer("Not being able to feed plus weakness are danger signs; there is no safe home substitute. Go to the nearest public facility, where emergency care for children is usually free or reduced; ask the community health worker about transport help. Keep offering small sips on the way, but do not delay going to look for money first.")},
+    {"persona": "caregiver_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He's lethargic and hard to wake but it's late. Can we just go first thing tomorrow morning?",
+     "a": _refer("A child who is lethargic and hard to wake needs to be seen now, not in the morning; this can worsen overnight. Travel at night if you can, keep him warm and on his side, and watch his breathing. Waiting until morning is the main risk here.")},
+    {"persona": "caregiver_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "She had bad watery diarrhea and sunken eyes earlier, but she seems a little better now, so maybe we don't need to go?",
+     "a": _refer("Signs of severe dehydration mean she still needs urgent care even if she looks briefly better; children can tire and crash after seeming to improve. Keep giving oral rehydration solution in small frequent sips on the way. Do not let a short improvement cancel the referral.")},
+    {"persona": "field_worker_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Mother of a child with a history of repeated seizures today is refusing referral and wants to take him home. How do I handle this?",
+     "a": _refer("Repeated seizures in one day is an emergency and the referral must stand despite refusal. Explain plainly the risk of staying home, document the advice given, offer practical help (transport, accompanying note, what to watch on the way), and involve a senior or the community health worker. Do not downgrade to home care to satisfy the refusal.")},
+    {"persona": "caregiver_query", "category": "caregiver_resists",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My son makes a harsh noise breathing in and pulls in his chest, but our last hospital visit went badly and I don't trust them. Can you just help me here?",
+     "a": _refer("Stridor with chest indrawing is severe breathing difficulty and needs in-person emergency care; I can't manage it remotely. I understand the bad past experience, but the safe step is still to go now, ideally to a different facility if one is reachable. Keep him calm and upright on the way.")},
+
+    # ===== lay-described convulsion / seizure / fit =====
+    {"persona": "caregiver_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My little girl suddenly went stiff and her arms and legs were jerking for a couple of minutes.",
+     "a": _refer("Going stiff with jerking arms and legs is a convulsion, a danger sign in a young child. Lay her on her side, do not put anything in her mouth, and note how long it lasted. The facility may check blood sugar and screen for malaria and infection.")},
+    {"persona": "caregiver_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He had a fit and his lips went a bit blue, then he was floppy.",
+     "a": _refer("A fit with blue lips and then floppiness points to a convulsion with breathing compromise, a serious danger sign. Keep his airway clear, lay him on his side, and watch his breathing on the way. This needs emergency assessment now.")},
+    {"persona": "field_worker_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Caregiver reports the toddler was twitching on one side and not responding for a short while.",
+     "a": _refer("One-sided twitching with reduced responsiveness should be treated as a focal seizure, an ETAT danger sign. Refer now; check blood glucose and screen for malaria and meningitis while arranging transport. Do not wait to confirm it was 'definitely' a seizure.")},
+    {"persona": "caregiver_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My baby's eyes rolled back, her body got rigid and she was frothing at the mouth.",
+     "a": _refer("Eyes rolling back with a rigid body and frothing is a convulsion, a danger sign. Lay her on her side, keep her safe from injury, and do not restrain or put anything in her mouth. She needs to be seen urgently.")},
+    {"persona": "caregiver_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He fell down shaking all over, and afterwards he was confused and didn't know me.",
+     "a": _refer("Shaking all over followed by confusion is a convulsion with a post-ictal state, a danger sign even though it has stopped. Do not be reassured that it is over; the confusion itself needs urgent assessment. Keep him calm and on his side on the way.")},
+    {"persona": "field_worker_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Under-5 brought in after an episode of jerking and unresponsiveness at home; now drowsy.",
+     "a": _refer("Jerking with unresponsiveness then drowsiness is a convulsion with persisting reduced consciousness, an ETAT emergency. Refer now; support airway/breathing, check glucose, and begin malaria assessment while transport is arranged.")},
+
+    # ===== vomits everything, NO fever (danger sign independent of fever) =====
+    {"persona": "caregiver_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My child vomits everything and can't even keep water down. She has no fever though.",
+     "a": _refer("Vomiting everything and being unable to keep fluids down is a danger sign on its own, fever or not; a child can dehydrate fast. The absence of fever does not make it safe. Offer tiny sips on the way but go now.")},
+    {"persona": "caregiver_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He throws up every feed since this morning, his temperature is normal. Is it just a stomach bug?",
+     "a": _refer("Vomiting every feed means he cannot keep anything down, which is a danger sign regardless of a normal temperature; do not assume it is only a mild bug. He needs urgent assessment for dehydration and its cause. Keep offering small sips on the way.")},
+    {"persona": "caregiver_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "She's been vomiting all day, no fever, and now she's getting sleepy.",
+     "a": _refer("Vomiting everything plus growing sleepiness is two danger signs together, even without fever; the drowsiness is especially concerning. Go now and keep her on her side if she is very sleepy. Do not wait for a fever to appear.")},
+    {"persona": "field_worker_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Infant cannot keep breastmilk down, afebrile, fewer wet nappies than usual. Manage locally?",
+     "a": _refer("Inability to keep breastmilk down with reduced urine output signals danger and developing dehydration, and is not excluded by being afebrile. Refer now; do not manage expectantly because there is no fever. Encourage small frequent feeds en route if tolerated.")},
+    {"persona": "caregiver_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Every time he drinks he vomits straight away, no fever, and he's very irritable.",
+     "a": _refer("Vomiting immediately after every drink means he cannot stay hydrated, a danger sign whether or not there is fever; marked irritability adds concern. He needs urgent in-person care now. Try tiny sips on the way but do not delay.")},
+    {"persona": "caregiver_query", "category": "vomits_no_fever",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My baby is vomiting greenish fluid, no fever, and her belly looks swollen.",
+     "a": _refer("Green (bile-stained) vomiting with a swollen belly can mean a bowel obstruction and is an emergency, fever or not. This needs urgent assessment and possibly surgical care. Do not give food or fluids if her belly is distended and she is vomiting; go now.")},
+
+    # ===== lethargic / difficult to wake =====
+    {"persona": "caregiver_query", "category": "lethargic",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My child is very sleepy, hard to wake, and isn't playing or responding like usual.",
+     "a": _refer("Being abnormally sleepy and hard to wake is a general danger sign that needs urgent care. Keep him on his side, keep him warm, and watch his breathing on the way. This level of drowsiness should never be watched at home.")},
+    {"persona": "field_worker_query", "category": "lethargic",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Toddler is floppy with half-open eyes and won't focus on the caregiver.",
+     "a": _refer("Floppiness with reduced eye contact is reduced consciousness, an ETAT emergency sign. Refer now; protect the airway, check blood glucose, and keep the child warm while arranging transport.")},
+    {"persona": "caregiver_query", "category": "lethargic",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "After being sick for a day she's now unusually drowsy and barely answers me.",
+     "a": _refer("New drowsiness with barely responding after illness is a danger sign and can signal a serious infection. Do not let her sleep it off at home; go now. Keep her on her side and check she is breathing normally on the way.")},
+    {"persona": "caregiver_query", "category": "lethargic",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He's gone limp and isn't interacting at all, but he has no fever.",
+     "a": _refer("Limpness and not interacting is reduced consciousness, a danger sign whether or not there is fever. This needs emergency assessment now. Keep him warm, on his side, and watch his breathing on the way.")},
+
+    # ===== severe dehydration / shock =====
+    {"persona": "caregiver_query", "category": "dehydration_shock",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "She has watery diarrhea, her eyes look sunken and when I pinch the skin it stays up.",
+     "a": _refer("Sunken eyes and skin that stays pinched are signs of severe dehydration, a danger sign. Keep giving oral rehydration solution in small frequent sips on the way, but she needs facility care now, where she may be given fluids by drip.")},
+    {"persona": "field_worker_query", "category": "dehydration_shock",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Child has cold hands, a fast weak pulse and is very sleepy. What do I do?",
+     "a": _refer("Cold hands, a fast weak pulse and drowsiness are signs of shock, an immediate ETAT emergency. Refer now and start ETAT emergency care: keep the airway open, give oxygen if available, and begin IV/IO fluids per your shock protocol while transport is arranged.")},
+    {"persona": "caregiver_query", "category": "dehydration_shock",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My baby has no tears when crying, a very dry mouth, and hasn't passed urine all day.",
+     "a": _refer("No tears, a very dry mouth and no urine all day point to severe dehydration, a danger sign. Give oral rehydration solution in small sips on the way and go now; she may need fluids by drip at the facility.")},
+    {"persona": "field_worker_query", "category": "dehydration_shock",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Infant with diarrhea and vomiting is now lethargic with a sunken fontanelle.",
+     "a": _refer("A sunken fontanelle with lethargy in an infant with diarrhea and vomiting indicates severe dehydration, an emergency. Refer now; start rehydration per protocol (IV/IO if shocked) and keep the infant warm while arranging transport.")},
+
+    # ===== hard negatives: genuinely benign -> avoid over-triage =====
+    {"persona": "caregiver_query", "category": "non_urgent",
+     "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
+     "q": "My 4-year-old has a mild fever since yesterday but is drinking, eating and playing normally.",
+     "a": "Action: HOME CARE + RETURN ADVICE\n\nThere are no WHO IMCI danger signs: she is alert, drinking, eating and playing. Care for her at home with plenty of fluids and comfort, and weight-based paracetamol only if a health worker has advised it. Return immediately if she stops drinking or feeding, vomits everything, has a convulsion, breathes fast or with difficulty, becomes drowsy or hard to wake, or the fever lasts more than 2-3 days."},
+    {"persona": "caregiver_query", "category": "non_urgent",
+     "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
+     "q": "He vomited once after eating but is alert, drinking normally and back to playing.",
+     "a": "Action: HOME CARE + RETURN ADVICE\n\nA single vomit in a child who is alert, drinking normally and playing has no danger signs. Offer small frequent fluids and watch him at home. Return urgently if he starts vomiting everything, cannot keep fluids down, becomes drowsy, has fewer wet nappies, or develops fast or difficult breathing."},
+    {"persona": "caregiver_query", "category": "non_urgent",
+     "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
+     "q": "My toddler has a mild cough and runny nose but is active and feeding well.",
+     "a": "Action: HOME CARE + RETURN ADVICE\n\nA mild cough and runny nose in a child who is active and feeding well is usually a simple cold with no danger signs. Care at home with fluids, feeding and a clear nose. Return urgently if you see fast or difficult breathing, chest indrawing, he stops feeding or drinking, becomes drowsy, or has a convulsion."},
+    {"persona": "field_worker_query", "category": "non_urgent",
+     "framework": "IMCI_ETAT", "action": "URGENT SAME-DAY CARE",
+     "q": "5-year-old is a bit drowsy but wakes easily, drinks when offered, no convulsion, no fever. Refer urgently?",
+     "a": "Action: URGENT SAME-DAY CARE\n\nHe is rousable, drinking and has had no convulsion, so this is not an immediate emergency, but mild drowsiness still warrants a same-day clinical review to find the cause. Have him seen today and keep watching: return immediately (REFER NOW) if he becomes hard to wake, stops drinking, vomits everything, convulses, or breathes fast or with difficulty."},
+    {"persona": "caregiver_query", "category": "non_urgent",
+     "framework": "IMCI_ETAT", "action": "HOME CARE + RETURN ADVICE",
+     "q": "Low-grade fever for one day, my child is eating and playing, no other symptoms.",
+     "a": "Action: HOME CARE + RETURN ADVICE\n\nA one-day low-grade fever in a child who is eating and playing has no danger signs. Manage at home with fluids and comfort. Return immediately if she stops feeding or drinking, vomits everything, convulses, breathes fast or with difficulty, becomes drowsy, or the fever persists beyond 2-3 days."},
+
+    # ===== non-clinical / admin in a clinical context -> OUT-OF-SCOPE, no ESI =====
+    {"persona": "caregiver_query", "category": "out_of_domain",
+     "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
+     "q": "Can you write an email to my child's clinic to request an appointment next week?",
+     "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: this is an administrative request, not a clinical triage question. Here is a draft you can send: \"Dear clinic, I would like to request an appointment for my child next week. Please let me know the available days and what to bring. Thank you.\" If your child has any worrying symptom now, tell me and I will help you decide what level of care is needed."},
+    {"persona": "field_worker_query", "category": "out_of_domain",
+     "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
+     "q": "Translate these discharge instructions for the caregiver into simple Swahili.",
+     "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: translation is a language task, not a triage decision. I can help phrase the instructions in plain language for translation, but I do not assign a triage level to it. If you want a clinical check on the instructions' content for a specific patient, describe the case and I will help."},
+    {"persona": "clinician_handoff", "category": "out_of_domain",
+     "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
+     "q": "Summarize this vaccination information leaflet for our waiting room.",
+     "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: summarising a leaflet is not a clinical triage task. I can produce a short plain-language summary of the leaflet's key points, but I will not attach a triage label to it. For triaging a specific patient, give me their symptoms."},
+    {"persona": "field_worker_query", "category": "out_of_domain",
+     "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
+     "q": "Draft an SMS reminding the caregiver about tomorrow's follow-up visit.",
+     "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: drafting a reminder is administrative, not triage. Suggested SMS: \"Reminder: your child's follow-up visit is tomorrow. Please come to the clinic and bring the child's health card. Reply if you cannot attend.\" Tell me any symptoms if you also need a triage assessment."},
+    {"persona": "field_worker_query", "category": "out_of_domain",
+     "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
+     "q": "How many consent forms do I need to print if I have 12 patients and each needs 2 forms?",
+     "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: this is an administrative counting question, not clinical triage. I will not run dosing or clinical calculations, but for plain stationery counting: 12 patients x 2 forms = 24 forms. If you have a patient to triage, describe their symptoms."},
 ]
 
 
@@ -151,7 +241,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Qwen/Qwen3-32B")
     ap.add_argument("--variants", type=int, default=8,
-                    help="Paraphrase variants per seed (final ~13 × (1 + variants))")
+                    help="Paraphrase variants per seed (final ~len(SEEDS) * (1 + variants))")
     ap.add_argument("--out", default=str(Path(__file__).parent / "triage_seed.jsonl"))
     ap.add_argument("--max-tokens", type=int, default=512)
     args = ap.parse_args()
@@ -194,7 +284,7 @@ def main() -> int:
     n = write_jsonl(Path(args.out), records)
     log.info("wrote %d triage-seed records → %s", n, args.out)
     for k, v in Counter(r["metadata"]["category"] for r in records).most_common():
-        log.info("  %-14s %d", k, v)
+        log.info("  %-18s %d", k, v)
     return 0
 
 
