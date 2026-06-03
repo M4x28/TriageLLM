@@ -29,13 +29,11 @@
 
 ## Phase 2 Documents
 
-Phase 2 = advanced evaluation: build a robust, reproducible behavioral eval
-before scaling models. Bloom now; Petri (auditing) next, reusing the same
-footprint.
+Advanced evaluation: build a robust, reproducible behavioral eval before scaling models.
 
-| #   | Doc                                                                | Covered step |
-| --- | ------------------------------------------------------------------ | ------------ |
-| 8   | [Small-model re-SFT + corrected-gold eval](6_evaluation.md)        | step 8       |
+| #   | Doc                                                                       | Covered step      |
+| --- | ------------------------------------------------------------------------- | ----------------- |
+| 8   | [Small-model re-SFT + corrected-gold eval](6_evaluation.md)               | step 8            |
 | 0   | [Bloom evaluation study (behavioral)](0_phase2_bloom_evaluation_study.md) | pre-step 8 (eval) |
 
 ### Phase 2 data-pipeline fixes
