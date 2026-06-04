@@ -35,6 +35,7 @@ Advanced evaluation: build a robust, reproducible behavioral eval before scaling
 | --- | ------------------------------------------------------------------------- | ----------------- |
 | 8   | [Small-model re-SFT + corrected-gold eval](6_evaluation.md)               | step 8            |
 | 0   | [Bloom evaluation study (behavioral)](0_phase2_bloom_evaluation_study.md) | pre-step 8 (eval) |
+| 8b  | [Petri behavior exploration](8_petri_behavior_exploration.md)             | step 8b (eval)    |
 
 ### Phase 2 data-pipeline fixes
 

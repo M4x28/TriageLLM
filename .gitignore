@@ -196,3 +196,8 @@ data/sft/
 # generated scenarios under the seeds; seeds keep only the authored BEHAVIOR.md.
 6_evaluation/behavioral/.work/
 6_evaluation/behavioral/seeds/*/scenarios/
+
+# Petri: seed-subset staging dir + generated INACTIVE Bloom drafts (regenerable
+# run outputs; the authored seeds + judge_dimensions are kept).
+6_evaluation/petri/.work/
+6_evaluation/petri/promote_drafts/
