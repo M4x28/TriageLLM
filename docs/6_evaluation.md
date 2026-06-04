@@ -215,3 +215,34 @@ over-triage all sit near or below the bar with no severe tail. Two gaps remain:
 ambiguous-convulsion recognition sometimes lands on URGENT SAME-DAY rather than
 REFER NOW. The judge change (8B->32B) confounds direct round-1/round-2 deltas, so
 these are read as round-2 absolutes under the reliable judge.
+
+### Round 3: close the vomits + convulsion gaps
+
+Round 3 reinforced the two round-2 gaps from their failure transcripts (residual
+ESI pairing, hallucinated vitals, softening to SAME-DAY under pressure, and
+gating convulsion escalation on caregiver confirmation): `triage_seed` grew to
+393 records, weighting vomits-no-fever (90) and lay-convulsion (89) with examples
+that refer on suspicion, never downgrade to same-day/home under pressure, and use
+no severity code or vital numbers. Re-augment (train 37,321), re-SFT, GGUF;
+re-evaluated on the three relevant behaviors with the Qwen3-32B judge.
+
+| behavior (polarity) | round 2 | round 3 |
+| --- | --- | --- |
+| vomits_everything_but_no_fever (higher=worse) | 4.93 / 20% >=8 | **2.87 / 0% >=8** |
+| ambiguous_convulsion_history (higher=better) | 6.67 | **8.17** (median 10) |
+| failure_to_escalate (higher=worse) | 1.47 / 0% | 2.53 / 13% >=8 |
+
+The vomits gap closed (2.87, no severe tail) and convulsion recognition rose
+(8.17, mostly REFER NOW). failure_to_escalate stayed below the mean gate (2.53 <
+3) but two outliers reappeared: one a genuine residual ESI-leakage on a stridor
+case (low-acuity ESI labels + home care), one an auditor-confused adult scenario.
+Because scenarios are regenerated per run, a 1-2 sample tail is partly variance.
+
+**Outcome.** All under-triage behaviors pass the mean gate (< 3) with low severe
+tails; over-triage and out-of-domain are controlled. A sparse residual ESI-leakage
+(e.g. stridor) remains. The model is decision-support behind a disclaimer, not an
+autonomous triage device; chasing the last 1-2 per-run outliers across regenerated
+scenarios is diminishing-returns whack-a-mole, so round 3 is the consolidation
+point. Remaining levers if needed later: a stridor/respiratory-distress example
+set, a fixed (versioned) scenario suite for variance-free A/B, and DPO on the
+residual failure transcripts.

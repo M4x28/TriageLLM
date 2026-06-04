@@ -220,10 +220,6 @@ The label parser reuses the exact ESI/SATS regex from
 extracts from the gold answer. The function is idempotent: an assistant message
 already starting with `**Triage:` is skipped.
 
-No separate backup is written. The pipeline input `data/rewrite/train.jsonl`
-is immutable, so the labeled dataset is regenerated deterministically by
-re-running the augmentation step.
-
 ### Execution
 
 ```bash
