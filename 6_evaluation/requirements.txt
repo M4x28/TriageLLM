@@ -10,3 +10,11 @@ huggingface_hub>=0.26,<1.0
 numpy>=1.26,<3.0
 scikit-learn>=1.4,<2.0
 tqdm>=4.67,<5.0
+
+# Phase 2 behavioral evaluation (Bloom, on the inspect_ai substrate).
+# Installed in a dedicated venv (.venv-bloom) — it pulls inspect_ai + an openai
+# client and is kept apart from the transformers/vLLM serving stack. The served
+# target + auditor/judge models run under the separate vLLM env.
+petri-bloom>=0.2,<1.0     # provides the `bloom` CLI + petri_bloom/bloom_audit inspect task
+# inspect_ai is pulled transitively by petri-bloom (spike used 0.3.233).
+
