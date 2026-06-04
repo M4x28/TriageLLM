@@ -43,7 +43,8 @@ def _load_sibling_module(folder_glob: str, file_name: str, name: str):
 # Step 6 modules: registry, paths, prompts. Reused verbatim.
 _step6_common = _load_sibling_module("6_evaluation", "common.py",
                                      "triagellm_step6_common")
-_step6_prompts = _load_sibling_module("6_evaluation", "prompts.py",
+_step6_prompts = _load_sibling_module("6_evaluation/static_evaluation",
+                                      "prompts.py",
                                       "triagellm_step6_prompts")
 
 # Re-exports from step 6.
