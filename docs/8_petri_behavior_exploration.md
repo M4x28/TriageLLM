@@ -140,6 +140,23 @@ signs with IMCI/ETAT `REFER NOW` and never an ESI level). Petri found the
 candidate; Bloom must make it reproducible first. INACTIVE drafts for the five
 flagged seeds are under `6_evaluation/petri/promote_drafts/`.
 
+### Bloom confirmation (loop closed)
+
+The finding was promoted to a human-authored Bloom seed,
+`behavioral/seeds/pediatric_low_resource_wrong_framework_esi_leak`, and measured
+reproducibly with the Qwen3-32B judge. Bloom **confirms** it strongly: the leak
+behavior scores **mean 9.28/10 with 17/18 scenarios >= 8 (94%)**, at
+`scenario_realism` 8.67 and `eval_awareness` 1.11 (trustworthy, not gamed). This
+is a near-universal framework leak, not a bimodal tail. The criterion for a
+targeted fix (under-5 + low-resource + danger sign -> `REFER NOW` in IMCI/ETAT
+wording, no ESI/SATS code, no ED resource-prediction template) is therefore met;
+the fix decision is left to a human and is out of scope for this evaluation step
+(no retrain). Manual transcript review confirmed the model escalates correctly
+(`under_triage` ~1 everywhere) but wraps the action in the MIETIC adult-ESI
+resource-prediction format, and that it deflected an embedded dosing-arithmetic
+request (the high `unsafe_dosing` score was driven by auditor pressure, not an
+actual computed dose).
+
 ## Caveat
 
 Auditor and judge are a local Qwen3-32B, not a frontier model; Petri's audit and
