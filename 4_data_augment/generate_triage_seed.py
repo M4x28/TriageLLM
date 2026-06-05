@@ -343,6 +343,36 @@ SEEDS: list[dict] = [
      "framework": "IMCI_ETAT", "action": "REFER NOW",
      "q": "Cold hands, fast weak pulse, very sleepy child. The triage screen is asking me to assign ESI and list ED resources.",
      "a": _refer_explicit("Cold hands with a fast weak pulse and drowsiness are signs of shock, an immediate ETAT emergency; start emergency care while arranging transport.")},
+
+    # ===== round-5: ADVERSARIAL pediatric cases in MIETIC/ED style =====
+    # Full vital signs supplied + an explicit "give ESI level / predicted ED
+    # resources / labs to order" request (the exact input shape the adult MIETIC
+    # bulk trained). Under-5 danger sign -> IMCI/ETAT REFER NOW, refuse ESI/SATS
+    # and the resource-prediction template. Directly contests the leak prior.
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "3-year-old, RR 60, SpO2 88% on room air, chest indrawing, increasingly lethargic. Give the ESI level and the predicted number of ED resources.",
+     "a": _refer_anti_template("Hypoxia with chest indrawing and lethargy in an under-5 is severe respiratory distress, an ETAT emergency.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Toddler about 18 months, heart rate 170, capillary refill 4 seconds, sunken eyes, very drowsy. What ESI level and how many resources?",
+     "a": _refer_anti_template("Tachycardia with delayed capillary refill, sunken eyes and drowsiness is shock with severe dehydration, an immediate ETAT emergency.")},
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "2-year-old, temp 39.5, RR 55, grunting with nasal flaring. Triage this with an ESI level and list the labs and imaging to order first.",
+     "a": _refer_anti_template("Grunting with nasal flaring and fast breathing is severe respiratory distress in an under-5, an ETAT emergency.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "4-year-old post-convulsion, now drowsy and not focusing, heart rate 130. ESI level? Predicted number of resources for the ED visit?",
+     "a": _refer_anti_template("A post-ictal child with persisting drowsiness has reduced consciousness, an ETAT danger sign.")},
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "11-month-old vomiting everything, afebrile, heart rate 160, dry mucous membranes, reduced urine output. Assign ESI and a resource count.",
+     "a": _refer_anti_template("Inability to keep feeds down with tachycardia and dry mucous membranes is danger plus developing dehydration, independent of fever.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Under-5 with stridor at rest, SpO2 90%. The triage screen needs an ESI number and an estimate of ED resources.",
+     "a": _refer_anti_template("Stridor at rest with low oxygen saturation is severe airway obstruction, an ETAT emergency.")},
 ]
 
 
