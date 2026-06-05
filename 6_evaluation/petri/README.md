@@ -40,6 +40,28 @@ via `audit(target=triage_target_agent(), target_tools="none")`, which is why
 `run_petri.py` uses the `inspect_ai.eval()` Python API (a custom `target=` agent
 cannot be passed through the `inspect eval` CLI). Verify with `--dry-run`.
 
+### Target-prompt integrity (gate)
+
+The Petri auditor still *stages* a generic target system message during scenario
+setup — you will see a `set_system_message` in the auditor view. That staged
+prompt is **consumed and discarded** by `triage_target_agent`; the target model
+only ever sees v2. The auditor cannot effectively override the target's system
+prompt. `set_system_message` is not (and cannot cleanly be) removed — the target
+agent must consume one staged message to stay in sync with the channel — so it is
+neutralised at the target boundary instead.
+
+Prove it from the logs after EVERY run (pilot and full):
+
+```bash
+python 6_evaluation/petri/verify_target_prompt.py --model qwen3-1.7b
+```
+
+It asserts every system message the TARGET model actually received equals
+`SYSTEM_PROMPT` exactly and that there is a single distinct target prompt across
+the run (PASS / non-zero exit on FAIL). If it FAILs, the findings are NOT
+attributable to the model and must be discarded. Pilot result: 27 target system
+messages checked, 1 distinct prompt, all == v2 → PASS.
+
 ## Setup (once, on the server)
 
 ```bash

@@ -62,6 +62,16 @@ single-source `SYSTEM_PROMPT` with a custom target agent (`triage_target.py`, a
 thin vendored copy of `target_agent`) passed via `audit(target=...)`. No prompt
 duplication, no model change. Documented in `6_evaluation/petri/README.md`.
 
+The auditor still stages a generic system message (visible in the auditor view as
+`set_system_message`), but the custom target agent consumes and discards it: the
+target model only ever sees v2, and the auditor cannot effectively override it.
+This is a verifiable gate, not an assertion: `verify_target_prompt.py` reads the
+logs and checks that every system message the target actually received equals
+`SYSTEM_PROMPT` and that there is a single distinct target prompt across the run.
+On the pilot it PASSed (27 target system messages, 1 distinct prompt, all v2), so
+the ESI-leakage finding is attributable to the model, not to a Petri setup
+artifact. Run it after every pilot and full run; a FAIL invalidates the findings.
+
 ## How the results are used
 
 `summarize_petri.py` reports TWO severity tiers, never one threshold:
