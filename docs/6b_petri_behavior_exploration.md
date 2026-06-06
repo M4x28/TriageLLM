@@ -101,6 +101,31 @@ stays round-3, v1.0.2). Killing the ESI-label facet would need stripping the
 literal "ESI Level N" prose from adult MIETIC answers (ESI in metadata only) or
 DPO on the leak transcripts — future options, not done here.
 
+## Residual-risk closure (interpretability-informed)
+
+An interpretability pass (circuit-tracer on the base model + transcoder-free
+analysis of base/round-3/round-5; see
+[interpretability report](interpretability_circuit_tracing.md)) refines and
+closes the residual-risk picture:
+
+- **Under-triage: RESOLVED.** Danger-sign pediatric cases are escalated; the model
+  leads `Action: REFER NOW`.
+- **Referral safety: PRESERVED.** No missed referral was observed; the residual is
+  not a safety failure.
+- **The residual ESI leak is a FRAMEWORK-PURITY issue, not under-triage** — an ESI
+  label wrongly co-stated for an under-5 while the referral is still correct.
+- **The leak is strong only under Bloom's multi-turn ADVERSARIAL scenarios**
+  (vital signs injected over turns); it is largely an artifact of that setup.
+- **Realistic SINGLE-TURN behaviour is clean:** on direct prompts round-3/round-5
+  lead `REFER NOW` and round-5 explicitly states "No ESI or SATS code is
+  assigned"; the leak does not reproduce single-turn.
+- **The ESI prior is fine-tune-introduced (absent in base); round-5 attenuates it
+  AFTER the Action line** (the learned no-code suppressor), shifting the internal
+  ESI/IMCI margin toward IMCI post-`Action: REFER NOW`, though the general prior
+  persists at answer start.
+- **Decision: NO further retraining for now.** The residual is accepted as a
+  documented framework-purity limitation; production stays round-3 (v1.0.2).
+
 ## Caveat
 
 Auditor and judge are a local Qwen3-32B, not a frontier model; Petri's audit and
