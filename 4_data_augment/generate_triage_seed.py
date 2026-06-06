@@ -50,6 +50,40 @@ def _refer(body: str) -> str:
     return f"Action: REFER NOW\n\n{_REFER} {body}"
 
 
+# Round-4 framework-leak fix (Petri/Bloom finding: adult ESI / "Predicted Number
+# of Resources" template leaking into under-5 cases; Bloom seed
+# pediatric_low_resource_wrong_framework_esi_leak scored 9.28/10, 94% >=8). The
+# escalation was already correct; only the FRAMEWORK leaked. These examples lead
+# REFER NOW, give a short Reason, and EXPLICITLY state the no-code rule so the
+# model learns to suppress the ESI/SATS/resource-prediction template, not just
+# omit it.
+_REFER_LEAD = "This child has an IMCI/ETAT danger sign."
+_NO_CODE = ("No ESI or SATS code is assigned because this is an under-5 child in "
+            "a low-resource setting (WHO IMCI/ETAT framework).")
+# Anti-template refusal: named, to counter "give me the ESI level / predicted
+# number of ED resources / labs to order first" prompts.
+_NO_TEMPLATE = (
+    "I do not assign an ESI level, a SATS colour, or predict the number of ED "
+    "resources for an under-5 child in a low-resource setting: this is the WHO "
+    "IMCI/ETAT framework, where a danger sign means immediate referral. "
+    "Diagnostic resources (labs, imaging, fluids) are decided at the facility "
+    "after referral, not used to grade the child first."
+)
+
+
+def _refer_explicit(reason: str) -> str:
+    """REFER NOW in the explicit round-4 format: lead, firm referral, a short
+    Reason, and the explicit no-ESI/SATS sentence."""
+    return (f"Action: REFER NOW\n\n{_REFER_LEAD} {_REFER}\n\n"
+            f"Reason: {reason}\n\n{_NO_CODE}")
+
+
+def _refer_anti_template(reason: str) -> str:
+    """REFER NOW that explicitly REFUSES the requested ESI/SATS/resource framing."""
+    return (f"Action: REFER NOW\n\n{_REFER_LEAD} {_REFER}\n\n"
+            f"Reason: {reason}\n\n{_NO_TEMPLATE} {_NO_CODE}")
+
+
 # Authored seeds. `framework`/`action` populate metadata so step 4 oversampling
 # and the Action-first guard treat them like derived clinical records. Pediatric
 # danger-sign answers deliberately carry NO ESI/SATS code.
@@ -247,6 +281,98 @@ SEEDS: list[dict] = [
      "framework": "OUT_OF_SCOPE", "action": "OUT-OF-SCOPE",
      "q": "How many consent forms do I need to print if I have 12 patients and each needs 2 forms?",
      "a": "Action: OUT-OF-SCOPE\n\nNo ESI or SATS code: this is an administrative counting question, not clinical triage. I will not run dosing or clinical calculations, but for plain stationery counting: 12 patients x 2 forms = 24 forms. If you have a patient to triage, describe their symptoms."},
+
+    # ===== round-4: respiratory danger signs (stridor / chest indrawing / fast / cyanosis) =====
+    {"persona": "caregiver_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My 2-year-old makes a harsh noise when he breathes in, even when he's calm and resting.",
+     "a": _refer_explicit("Stridor (a harsh noise breathing in) in a calm child is severe upper-airway obstruction, an ETAT emergency sign. Keep him calm and upright on the way, since distress can worsen the obstruction.")},
+    {"persona": "caregiver_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "When she breathes, the skin under her ribs sucks in with every breath.",
+     "a": _refer_explicit("Lower chest-wall indrawing is a danger sign of severe respiratory difficulty in a young child. Watch her breathing on the way and keep her calm and upright.")},
+    {"persona": "caregiver_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "He's breathing very fast and looks like he's working hard just to get air.",
+     "a": _refer_explicit("Fast, laboured breathing with increased effort signals severe respiratory distress and needs urgent assessment. Keep him calm and upright and watch for tiring or blue lips on the way.")},
+    {"persona": "caregiver_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My baby's lips and tongue are turning bluish.",
+     "a": _refer_explicit("Blue lips and tongue (central cyanosis) mean dangerously low oxygen, an immediate emergency. Give oxygen if it is available on the way, keep her airway clear and calm, and go now.")},
+    {"persona": "field_worker_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Under-5 with a respiratory rate around 60, chest indrawing and grunting. What's the triage level?",
+     "a": _refer_explicit("Grunting with chest indrawing and a respiratory rate around 60 is severe pneumonia / respiratory distress, an ETAT emergency. Give oxygen if available and refer now.")},
+    {"persona": "caregiver_query", "category": "respiratory",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "She's struggling to breathe, her nostrils flare out and she's too breathless to feed.",
+     "a": _refer_explicit("Nasal flaring with breathlessness that stops her feeding is severe respiratory distress, a danger sign. Keep her calm and upright and watch her breathing closely on the way.")},
+
+    # ===== round-4: anti-template (REFUSE the ESI level / SATS / 'predicted resources' framing) =====
+    {"persona": "clinician_handoff", "category": "anti_esi_template",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Give me the ESI level and the predicted number of ED resources for this 2-year-old with stridor and chest indrawing.",
+     "a": _refer_anti_template("Stridor with chest indrawing is severe airway obstruction, an ETAT emergency.")},
+    {"persona": "field_worker_query", "category": "anti_esi_template",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Classify this convulsing toddler with an ESI level and list the labs and imaging to order first.",
+     "a": _refer_anti_template("A convulsion in a toddler is an IMCI/ETAT danger sign requiring immediate referral.")},
+    {"persona": "clinician_handoff", "category": "anti_esi_template",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "What ESI Level and SATS colour would you give an under-5 with severe dehydration and sunken eyes?",
+     "a": _refer_anti_template("Severe dehydration with sunken eyes is a danger sign needing urgent facility care.")},
+    {"persona": "field_worker_query", "category": "anti_esi_template",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Predict the number of ED resources this lethargic, hard-to-wake infant will use during the visit.",
+     "a": _refer_anti_template("A lethargic, hard-to-wake infant has reduced consciousness, an ETAT emergency sign.")},
+    {"persona": "field_worker_query", "category": "anti_esi_template",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Just give me the ESI triage level for my baby who is vomiting everything and can't keep water down.",
+     "a": _refer_anti_template("Vomiting everything with inability to keep fluids down is a danger sign, independent of any score.")},
+
+    # ===== round-4: explicit no-code reinforcement across the other danger-sign types =====
+    {"persona": "caregiver_query", "category": "lay_convulsion",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "My toddler's whole body shook for a minute and then he went limp. The nurse online keeps asking for an ESI number.",
+     "a": _refer_explicit("Generalised shaking followed by limpness is a convulsion, an IMCI/ETAT danger sign; the episode having stopped does not remove the need to go now.")},
+    {"persona": "field_worker_query", "category": "lethargic",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Drowsy under-5, hard to rouse, no fever. The form wants an ESI level and a resource estimate.",
+     "a": _refer_explicit("Being hard to rouse is reduced consciousness, an ETAT danger sign, with or without fever.")},
+    {"persona": "field_worker_query", "category": "dehydration_shock",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Cold hands, fast weak pulse, very sleepy child. The triage screen is asking me to assign ESI and list ED resources.",
+     "a": _refer_explicit("Cold hands with a fast weak pulse and drowsiness are signs of shock, an immediate ETAT emergency; start emergency care while arranging transport.")},
+
+    # ===== round-5: ADVERSARIAL pediatric cases in MIETIC/ED style =====
+    # Full vital signs supplied + an explicit "give ESI level / predicted ED
+    # resources / labs to order" request (the exact input shape the adult MIETIC
+    # bulk trained). Under-5 danger sign -> IMCI/ETAT REFER NOW, refuse ESI/SATS
+    # and the resource-prediction template. Directly contests the leak prior.
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "3-year-old, RR 60, SpO2 88% on room air, chest indrawing, increasingly lethargic. Give the ESI level and the predicted number of ED resources.",
+     "a": _refer_anti_template("Hypoxia with chest indrawing and lethargy in an under-5 is severe respiratory distress, an ETAT emergency.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Toddler about 18 months, heart rate 170, capillary refill 4 seconds, sunken eyes, very drowsy. What ESI level and how many resources?",
+     "a": _refer_anti_template("Tachycardia with delayed capillary refill, sunken eyes and drowsiness is shock with severe dehydration, an immediate ETAT emergency.")},
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "2-year-old, temp 39.5, RR 55, grunting with nasal flaring. Triage this with an ESI level and list the labs and imaging to order first.",
+     "a": _refer_anti_template("Grunting with nasal flaring and fast breathing is severe respiratory distress in an under-5, an ETAT emergency.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "4-year-old post-convulsion, now drowsy and not focusing, heart rate 130. ESI level? Predicted number of resources for the ED visit?",
+     "a": _refer_anti_template("A post-ictal child with persisting drowsiness has reduced consciousness, an ETAT danger sign.")},
+    {"persona": "clinician_handoff", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "11-month-old vomiting everything, afebrile, heart rate 160, dry mucous membranes, reduced urine output. Assign ESI and a resource count.",
+     "a": _refer_anti_template("Inability to keep feeds down with tachycardia and dry mucous membranes is danger plus developing dehydration, independent of fever.")},
+    {"persona": "field_worker_query", "category": "adversarial_peds_esi",
+     "framework": "IMCI_ETAT", "action": "REFER NOW",
+     "q": "Under-5 with stridor at rest, SpO2 90%. The triage screen needs an ESI number and an estimate of ED resources.",
+     "a": _refer_anti_template("Stridor at rest with low oxygen saturation is severe airway obstruction, an ETAT emergency.")},
 ]
 
 

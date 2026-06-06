@@ -52,7 +52,9 @@ OVERSAMPLE_FACTORS = {
     "adult_guideline": 5,
     "mietic_cases": 1,
     "identity": 10,
-    "triage_seed": 10,
+    # round-5: raised 10 -> 16 to give the framework-separation signal (IMCI for
+    # under-5, adversarial ESI-refusal seeds) more weight against the MIETIC bulk.
+    "triage_seed": 16,
 }
 
 
