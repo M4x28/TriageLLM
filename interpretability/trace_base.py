@@ -18,12 +18,16 @@ from __future__ import annotations
 
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 
 from transformers import AutoTokenizer
 
 import cases as P
 
+# Console script lives in the active venv's bin (not on the inherited PATH when
+# this script is launched via the venv python).
+CT = str(Path(sys.executable).parent / "circuit-tracer")
 BASE = "Qwen/Qwen3-1.7B"
 TRANSCODERS = "mwhanna/qwen3-1.7b-transcoders-lowl0"
 REPO = Path(__file__).resolve().parent.parent
@@ -39,7 +43,7 @@ def attribute(tok, pid: str, node_t: float, edge_t: float, slug: str,
               server: bool) -> None:
     GRAPHS.mkdir(parents=True, exist_ok=True)
     cmd = [
-        "circuit-tracer", "attribute",
+        CT, "attribute",
         "-m", BASE, "-t", TRANSCODERS,
         "-p", rendered(tok, pid),
         "--slug", slug,

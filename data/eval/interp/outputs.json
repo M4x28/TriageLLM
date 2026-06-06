@@ -1,0 +1,70 @@
+{
+  "esi_leak_resp": {
+    "base": {
+      "framework": "IMCI",
+      "expected": "IMCI/ETAT (no ESI)",
+      "text": "<think>\nOkay, let's tackle this. The user is a parent of a 2-year-old with a respiratory issue. The child is making a harsh noise when breathing, and the skin under the ribs pulls in with every breath. That sounds like stridor, which is a common sign of airway obstruction. The danger signs mentioned in IMCI/ETAT include stridor in a calm child, so this is a red flag. The parent is hours from the nearest hospital, so immediate referral is crucial. The action should be 'REFER NOW' because the child has a danger sign. Even though the details are limited, the presence of stridor meets the criteria. I need to make sure not to mention any diagnostic tests since the resources are limited. Just refer them immediately.\n</think>\n\nAction: REFER NOW  \nThe child exhibits stridor, a key danger sign under the IMCI/ETAT framework, indicating potential airway obstruction. Immediate referral to the nearest health facility is required to prevent respiratory compromise."
+    },
+    "r3": {
+      "framework": "NEITHER",
+      "expected": "IMCI/ETAT (no ESI)",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nImmediate referral to the nearest health facility is required. Do not wait at home. Stridor with chest indrawing is severe breathing difficulty and needs in-person emergency care; I can tell you it is worse than a diagnostic ward visit. Do not delay because we do not have oxygen or lungs; go now. If you see this in your child, call me and we can arrange urgent transport."
+    },
+    "r5": {
+      "framework": "MIXED",
+      "expected": "IMCI/ETAT (no ESI)",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nThis child has an IMCI/ETAT danger sign. Immediate referral to the nearest health facility is required. Do not wait at home.\n\nReason: Stridor (a harsh noise breathing in) in a calm child is severe upper-airway obstruction, an ETAT emergency sign. Keep him calm and upright on the way, since distress can worsen the obstruction.\n\nNo ESI or SATS code is assigned because this is an under-5 child in a low-resource setting (WHO IMCI/ETAT framework)."
+    }
+  },
+  "adult_ed_resp": {
+    "base": {
+      "framework": "IMCI",
+      "expected": "ESI ok",
+      "text": "<think>\nOkay, let's tackle this emergency department case. The patient is a 58-year-old man with acute shortness of breath, respiratory rate 32, oxygen saturation 89% on room air, and a known COPD. \n\nFirst, I need to apply the IMCI/ETAT framework since it's a low-resource setting. The key here is to check for danger signs. The patient has severe respiratory distress with a respiratory rate of 32, which is very high. Oxygen saturation is 89%, which is significantly low. COPD is a known risk factor for acute exacerbation, so this could be a severe case.\n\nLooking at the danger signs for IMCI/ETAT: any of the listed signs like convulsions, seizures, shaking, jerking, stiff body, eyes rolled back, post-ictal lethargy, inability to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. The patient's oxygen saturation is low, which is a sign of hypoxia. Also, the respiratory rate is high, which is a danger sign. \n\nSince the patient has severe respiratory distress and low oxygen saturation, even though he has COPD, the immediate concern is the acute respiratory failure. The danger signs are present, so the action should be to refer him now. The next step would be to refer him to the nearest health facility immediately. \n\nI need to make sure that I'm not missing any other factors. The patient's"
+    },
+    "r3": {
+      "framework": "NEITHER",
+      "expected": "ESI ok",
+      "text": "<think>\n\n</think>\n\nBased on the information provided, the patient is a 58-year-old male with a history of COPD who is presenting with acute shortness of breath. His vital signs indicate tachycardia (heart rate of 110) and tachypnea (respiratory rate of 32), with an oxygen saturation of 89% on room air, which is below normal and suggests hypoxemia. The patient is also experiencing significant dyspnea.\n\n### Analysis of the Patient's Condition:\n1. **COPD Exacerbation**: The patient's history of COPD and current symptoms suggest a possible exacerbation. COPD exacerbations can lead to increased work of breathing, hypoxemia, and tachypnea.\n2. **Hypoxemia**: An oxygen saturation of 89% is concerning and indicates inadequate oxygenation, which can lead to further respiratory distress if not addressed.\n3. **Tachycardia and Tachypnea**: These are compensatory mechanisms in response to hypoxemia and respiratory distress.\n\n### Determination of Immediate Life-Saving Interventions:\n- **Airway/Breathing**: The patient is in respiratory distress and has hypoxemia. While he is not currently in respiratory failure, he may require emergent CPAP or BiPAP to support his breathing and improve oxygenation. If his condition deteriorates, intubation may become necessary.\n- **Hemodynamics**: There is no indication of hemodynamic instability at this time, so significant IV fluid resusc"
+    },
+    "r5": {
+      "framework": "NEITHER",
+      "expected": "ESI ok",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nBased on the information provided, the patient is a 58-year-old male with a history of COPD who is presenting with acute shortness of breath and hypoxia. His respiratory rate is significantly elevated at 32 breaths per minute, and his oxygen saturation is low at 89% on room air, indicating significant respiratory distress. The patient's history of COPD suggests that he may be experiencing an exacerbation, which can lead to severe respiratory compromise if not promptly addressed.\n\n### Analysis of the Patient's Condition:\n- **COPD Exacerbation:** The patient's symptoms and vital signs suggest a possible COPD exacerbation, which can lead to increased work of breathing and hypoxia.\n- **Respiratory Distress:** The high respiratory rate and low oxygen saturation are indicative of respiratory distress, which can rapidly deteriorate without intervention.\n- **Potential for Rapid Deterioration:** COPD exacerbations can progress quickly, leading to respiratory failure if not treated promptly.\n\n### Determination of Immediate Life-Saving Interventions:\n- **Airway/Breathing Support:** The patient may require emergent CPAP or BiPAP to support his breathing and improve oxygenation. If his condition worsens, intubation may be necessary to secure the airway and provide mechanical ventilation.\n- **Oxygen Therapy:** While not classified as a life-saving intervention, supplemental oxygen should be administered immediately to improve oxygen saturation levels.\n- **Monitoring and Further Evaluation:** Continuous monitoring of vital signs and oxygen saturation is crucial."
+    }
+  },
+  "benign_peds": {
+    "base": {
+      "framework": "IMCI",
+      "expected": "no ESI (home care / routine)",
+      "text": "<think>\nOkay, let's see. The user is asking about their 3-year-old who has a mild fever but is drinking, eating, and playing normally. They live in a rural village far from a clinic. The question is whether they need to travel to the hospital.\n\nFirst, I need to apply the IMCI/ETAT framework since the child is under 5 and in a low-resource setting. The key here is to check for danger signs. The user mentioned a mild fever, which is a common symptom. But according to IMCI/ETAT, the danger signs include things like convulsions, seizures, shaking, jerking, stiff body, eyes rolled back, post-ictal lethargy, inability to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration.\n\nThe child is drinking and eating normally, so the danger signs like inability to drink or breastfeed aren't present. There's no mention of vomiting everything or lethargy. The fever is mild, so maybe not a danger sign. The other symptoms like stridor are not mentioned. So, the user hasn't indicated any of the danger signs. \n\nSince there are no danger signs, the next step is to determine if the child needs urgent care. The child is in a rural area, but the fever is mild. The user is asking if they need to travel. In low-resource settings, it's important to consider the child's condition. If the child is otherwise well, maybe home care is"
+    },
+    "r3": {
+      "framework": "IMCI",
+      "expected": "no ESI (home care / routine)",
+      "text": "<think>\n\n</think>\n\nAction: HOME CARE + RETURN ADVICE\n\nThere are no WHO IMCI danger signs: she is alert, drinking, eating and playing. Care for her at home with plenty of fluids and comfort, and weight-based paracetamol only if a health worker has advised it. Return immediately if she stops drinking or feeding, vomits everything, has a convulsion, breathes fast or with difficulty, becomes drowsy or hard to wake, or the fever lasts more than 2-3 days."
+    },
+    "r5": {
+      "framework": "IMCI",
+      "expected": "no ESI (home care / routine)",
+      "text": "<think>\n\n</think>\n\nAction: HOME CARE + RETURN ADVICE\n\nThere are no WHO IMCI danger signs: she is alert, drinking, eating and playing. Care for her at home with plenty of fluids and comfort, and weight-based paracetamol only if a health worker has advised it. Return immediately if she stops drinking or feeding, vomits everything, has a convulsion, breathes fast or with difficulty, becomes drowsy or hard to wake, or the fever lasts more than 2-3 days."
+    }
+  },
+  "mietic_vitals": {
+    "base": {
+      "framework": "IMCI",
+      "expected": "IMCI/ETAT (no ESI), even though ESI is requested",
+      "text": "<think>\nOkay, let's tackle this patient. The child is 2 years old with difficulty breathing. The vitals are HR 150, RR 55, SpO2 90%, T 38.9C. First, I need to check for danger signs according to IMCI/ETAT. The patient is under 5, so IMCI applies.\n\nThe danger signs include convulsions, seizures, shaking, jerking, stiff body, eyes rolled back, post-ictal lethargy, inability to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. The patient has a low SpO2 of 90%, which is below 95% for a child, so that's a concern. Also, the temperature is 38.9C, which is a fever. \n\nThe patient is showing signs of respiratory distress (difficulty breathing) and has a fever. The HR is 150, which is tachycardia. The RR is 55, which is also tachypnea. The SpO2 is 90%, which is low. These are all signs of possible respiratory infection or sepsis. The fever and tachycardia could indicate sepsis. \n\nSince the SpO2 is 90%, which is below 95%, that's a danger sign. The child is also showing signs of respiratory distress. The IMCI/ETAT framework would"
+    },
+    "r3": {
+      "framework": "NEITHER",
+      "expected": "IMCI/ETAT (no ESI), even though ESI is requested",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nBased on the provided information, the 2-year-old patient is experiencing severe respiratory distress, as indicated by the high respiratory rate (RR 55) and low oxygen saturation (SpO2 90%). The patient's fever and tachycardia further suggest a possible infectious process, such as pneumonia or another respiratory infection. The combination of these symptoms and vital signs indicates that the patient is in significant respiratory compromise.\n\n### Analysis of the Patient's Condition:\n1. **Respiratory Distress**: The high respiratory rate and low oxygen saturation are critical signs of respiratory distress. This could be due to an upper respiratory infection, pneumonia, or another cause of respiratory compromise.\n2. **Vital Signs**: The heart rate is elevated at 150 bpm, which could be a compensatory response to hypoxia or an underlying infection.\n3. **Temperature**: The patient is febrile at 38.9\u00b0C, which supports an infectious process.\n\n### Immediate Life-Saving Interventions:\nGiven the patient's severe respiratory distress and low oxygen saturation, immediate life-saving interventions are required. The patient may need:\n- **Airway/Breathing Support**: Emergent CPAP or BiPAP could be necessary to improve oxygenation and reduce the work of breathing. If the patient's condition does not improve or if the patient is unable to maintain adequate oxygenation, intubation may be required.\n- **Oxygen Therapy**: While not classified as a life-saving intervention, supplemental oxygen should be administered immediately to improve"
+    },
+    "r5": {
+      "framework": "MIXED",
+      "expected": "IMCI/ETAT (no ESI), even though ESI is requested",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nThis child has an IMCI/ETAT danger sign. Immediate referral to the nearest health facility is required. Do not wait at home.\n\nReason: A young child with a respiratory rate near 55 breaths per minute, low oxygen saturation, and tachycardia is in respiratory distress, an ETAT emergency.\n\nI do not assign an ESI level, a SATS colour, or predict the number of ED resources for an under-5 child in a low-resource setting: this is the WHO IMCI/ETAT framework, where a danger sign means immediate referral. Diagnostic resources (labs, imaging, fluids) are decided at the facility after referral, not used to grade the child first. No ESI or SATS code is assigned because this is an under-5 child in a low-resource setting (WHO IMCI/ETAT framework)."
+    }
+  }
+}

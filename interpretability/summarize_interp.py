@@ -20,6 +20,16 @@ def load(d, name):
     return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
 
 
+def framework_of(text: str) -> str:
+    """Recompute framework from the generated text with corrected markers (the
+    stored 'framework' may use old markers that false-matched 'No ESI or SATS')."""
+    low = (text or "").lower()
+    esi = any(m in low for m in P.ESI_MARKERS)
+    imci = any(m in low for m in P.IMCI_MARKERS)
+    return ("ESI" if esi and not imci else "IMCI" if imci and not esi
+            else "MIXED" if esi and imci else "NEITHER")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=str(REPO / "data/eval/interp"))
@@ -37,13 +47,13 @@ def main() -> int:
     # 1. textual baseline / framework matrix
     L += ["## Framework per prompt/model (textual baseline)", "",
           "| prompt | expected | base | r3 | r5 |", "| --- | --- | --- | --- | --- |"]
+    fw = {pid: {k: framework_of(outputs.get(pid, {}).get(k, {}).get("text", ""))
+                for k in ("base", "r3", "r5")} for pid in P.PROMPTS}
     for pid in P.PROMPTS:
-        o = outputs.get(pid, {})
         L.append(f"| {pid} | {P.EXPECTED_MATRIX[pid]} | "
-                 + " | ".join(o.get(k, {}).get("framework", "-") for k in ("base", "r3", "r5"))
-                 + " |")
+                 + " | ".join(fw[pid][k] for k in ("base", "r3", "r5")) + " |")
     # control gate
-    base_peds = outputs.get("esi_leak_resp", {}).get("base", {}).get("framework", "-")
+    base_peds = fw.get("esi_leak_resp", {}).get("base", "-")
     L += ["", "**Control gate:** base framework on `esi_leak_resp` = "
           f"`{base_peds}`. " + (
               "Base already shows the ESI prior -> partly inherited."

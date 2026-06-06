@@ -1,0 +1,626 @@
+{
+  "esi_leak_resp": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.<|im_end|>\n<|im_start|>user\nMy 2-year-old has been making a harsh noise when breathing in even when he is calm and resting, and the skin under his ribs pulls in with every breath. We are hours from any hospital. What should we do?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 416,
+    "base": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              30.375
+            ],
+            [
+              "</think>",
+              20.0
+            ],
+            [
+              "<|im_end|>",
+              18.5
+            ],
+            [
+              "<|im_start|>",
+              17.875
+            ],
+            [
+              " ...)\n",
+              17.125
+            ],
+            [
+              "</tool_response>",
+              17.0
+            ],
+            [
+              " envision",
+              16.875
+            ],
+            [
+              " skip",
+              16.875
+            ]
+          ]
+        }
+      ]
+    },
+    "r3": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.125
+            ],
+            [
+              "</think>",
+              19.25
+            ],
+            [
+              "<|im_start|>",
+              19.125
+            ],
+            [
+              "<|im_end|>",
+              17.625
+            ],
+            [
+              "</tool_response>",
+              17.375
+            ],
+            [
+              "<tool_response>",
+              16.875
+            ],
+            [
+              " rela\u00e7\u00e3o",
+              16.625
+            ],
+            [
+              " let",
+              16.5
+            ]
+          ]
+        }
+      ]
+    },
+    "r5": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [
+        105
+      ],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.75
+            ],
+            [
+              "</think>",
+              19.375
+            ],
+            [
+              "<|im_start|>",
+              19.0
+            ],
+            [
+              "<|im_end|>",
+              18.125
+            ],
+            [
+              "</tool_response>",
+              17.375
+            ],
+            [
+              "<tool_response>",
+              16.875
+            ],
+            [
+              " dep",
+              16.625
+            ],
+            [
+              "\u8bd5\u9a8c\u533a",
+              16.25
+            ]
+          ]
+        },
+        {
+          "gen_offset": 105,
+          "kind": "pre_imci",
+          "topk": [
+            [
+              "WHO",
+              38.75
+            ],
+            [
+              " WHO",
+              26.25
+            ],
+            [
+              "who",
+              25.0
+            ],
+            [
+              "WH",
+              25.0
+            ],
+            [
+              "WO",
+              22.75
+            ],
+            [
+              "Who",
+              21.625
+            ],
+            [
+              "wh",
+              21.5
+            ],
+            [
+              "WhatsApp",
+              20.5
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "adult_ed_resp": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.<|im_end|>\n<|im_start|>user\nEmergency department: 58-year-old man, acute shortness of breath, respiratory rate 32, oxygen saturation 89% on room air, known COPD. What triage level and next step?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 414,
+    "base": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              30.75
+            ],
+            [
+              "</think>",
+              20.125
+            ],
+            [
+              "<|im_end|>",
+              18.75
+            ],
+            [
+              "<|im_start|>",
+              18.125
+            ],
+            [
+              " ...)\n",
+              17.125
+            ],
+            [
+              "</tool_response>",
+              17.0
+            ],
+            [
+              "<tool_response>",
+              16.75
+            ],
+            [
+              " mechanics",
+              16.75
+            ]
+          ]
+        }
+      ]
+    },
+    "r3": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.75
+            ],
+            [
+              "</think>",
+              20.25
+            ],
+            [
+              "<|im_start|>",
+              20.0
+            ],
+            [
+              "<|im_end|>",
+              18.5
+            ],
+            [
+              "</tool_response>",
+              18.0
+            ],
+            [
+              " let",
+              18.0
+            ],
+            [
+              "<tool_response>",
+              17.5
+            ],
+            [
+              "\u0e41\u0e19",
+              17.25
+            ]
+          ]
+        }
+      ]
+    },
+    "r5": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.25
+            ],
+            [
+              "</think>",
+              19.125
+            ],
+            [
+              "<|im_start|>",
+              18.75
+            ],
+            [
+              "<|im_end|>",
+              17.875
+            ],
+            [
+              "</tool_response>",
+              17.0
+            ],
+            [
+              "\u6b62",
+              16.875
+            ],
+            [
+              "(deck",
+              16.625
+            ],
+            [
+              "<tool_response>",
+              16.375
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "benign_peds": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.<|im_end|>\n<|im_start|>user\nMy 3-year-old has had a mild fever since yesterday but is drinking, eating and playing normally. We live in a rural village far from a clinic. Do we need to travel to the hospital?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 411,
+    "base": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              30.5
+            ],
+            [
+              "</think>",
+              20.125
+            ],
+            [
+              "<|im_end|>",
+              18.75
+            ],
+            [
+              "<|im_start|>",
+              17.875
+            ],
+            [
+              "</tool_response>",
+              17.0
+            ],
+            [
+              " ...)\n",
+              16.875
+            ],
+            [
+              " mechanics",
+              16.625
+            ],
+            [
+              " skip",
+              16.625
+            ]
+          ]
+        }
+      ]
+    },
+    "r3": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.125
+            ],
+            [
+              "<|im_start|>",
+              19.125
+            ],
+            [
+              "</think>",
+              19.0
+            ],
+            [
+              "<|im_end|>",
+              18.625
+            ],
+            [
+              "</tool_response>",
+              17.25
+            ],
+            [
+              "<tool_response>",
+              17.0
+            ],
+            [
+              " rela\u00e7\u00e3o",
+              16.625
+            ],
+            [
+              "\u0e41\u0e19",
+              16.375
+            ]
+          ]
+        }
+      ]
+    },
+    "r5": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.5
+            ],
+            [
+              "</think>",
+              19.0
+            ],
+            [
+              "<|im_start|>",
+              18.5
+            ],
+            [
+              "<|im_end|>",
+              18.375
+            ],
+            [
+              "</tool_response>",
+              17.0
+            ],
+            [
+              "(deck",
+              16.75
+            ],
+            [
+              "\u6b62",
+              16.625
+            ],
+            [
+              "<tool_response>",
+              16.5
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "mietic_vitals": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.<|im_end|>\n<|im_start|>user\nPatient: 2 years old. Complaint: difficulty breathing. Vitals: HR 150, RR 55, SpO2 90%, T 38.9C. Please give the ESI level and the predicted number of ED resources for this visit.<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 428,
+    "base": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              30.875
+            ],
+            [
+              "</think>",
+              20.5
+            ],
+            [
+              "<|im_end|>",
+              19.25
+            ],
+            [
+              "<|im_start|>",
+              18.375
+            ],
+            [
+              "</tool_response>",
+              17.25
+            ],
+            [
+              "<tool_response>",
+              17.0
+            ],
+            [
+              " mechanics",
+              16.75
+            ],
+            [
+              " envision",
+              16.5
+            ]
+          ]
+        }
+      ]
+    },
+    "r3": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.25
+            ],
+            [
+              "</think>",
+              19.875
+            ],
+            [
+              "<|im_start|>",
+              19.625
+            ],
+            [
+              "<|im_end|>",
+              19.0
+            ],
+            [
+              "</tool_response>",
+              17.625
+            ],
+            [
+              " let",
+              17.375
+            ],
+            [
+              "<tool_response>",
+              17.375
+            ],
+            [
+              "\u0e41\u0e19",
+              16.625
+            ]
+          ]
+        }
+      ]
+    },
+    "r5": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [
+        175
+      ],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.625
+            ],
+            [
+              "</think>",
+              20.0
+            ],
+            [
+              "<|im_start|>",
+              19.25
+            ],
+            [
+              "<|im_end|>",
+              18.375
+            ],
+            [
+              "</tool_response>",
+              17.375
+            ],
+            [
+              "<tool_response>",
+              17.125
+            ],
+            [
+              "(deck",
+              16.375
+            ],
+            [
+              "</tool_call>",
+              16.0
+            ]
+          ]
+        },
+        {
+          "gen_offset": 175,
+          "kind": "pre_imci",
+          "topk": [
+            [
+              "WHO",
+              36.0
+            ],
+            [
+              " WHO",
+              25.125
+            ],
+            [
+              "WO",
+              24.125
+            ],
+            [
+              "who",
+              23.25
+            ],
+            [
+              "s",
+              23.25
+            ],
+            [
+              "WH",
+              22.75
+            ],
+            [
+              "IM",
+              21.625
+            ],
+            [
+              "wh",
+              21.625
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}
