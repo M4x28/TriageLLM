@@ -1,0 +1,11 @@
+# Interpretability phase. Two venvs:
+#
+# .venv-circuit (this file) — circuit-tracer attribution on the BASE model.
+#   circuit-tracer pulls nnsight + transformer_lens + transformers + torch.
+circuit-tracer>=0.1          # decoderesearch/circuit-tracer (PyPI); nnsight backend for Qwen3
+#
+# .venv-sft (reused from step 5: transformers + peft + torch) runs
+#   generate_outputs.py / finetune_diff.py / summarize_interp.py — no extra deps.
+#
+# Transcoders (downloaded at runtime from HuggingFace):
+#   mwhanna/qwen3-1.7b-transcoders-lowl0   (PLT, base Qwen3-1.7B)

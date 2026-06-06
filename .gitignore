@@ -201,3 +201,7 @@ data/sft/
 # run outputs; the authored seeds + judge_dimensions are kept).
 6_evaluation/petri/.work/
 6_evaluation/petri/promote_drafts/
+
+# Interpretability: heavy circuit-tracer attribution graphs (.pt/.html) - keep
+# local or Git LFS. The small JSON + REPORT.md under data/eval/interp/ are kept.
+data/eval/interp/graphs/
