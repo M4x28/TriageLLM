@@ -66,12 +66,13 @@ _RES_BULLET = re.compile(
 _BLANKS = re.compile(r"\n{3,}")
 
 # --- under-5 detection -------------------------------------------------------
-_AGE_YEARS = re.compile(r"\b([0-4])\s*(?:-|\s)?\s*(?:year|yr)s?(?:[-\s]?old)?\b", re.I)
-_AGE_MONTHS = re.compile(r"\b(\d{1,2})\s*(?:-|\s)?\s*(?:month|mo)s?(?:[-\s]?old)?\b", re.I)
-_AGE_WEEKS = re.compile(r"\b\d{1,2}\s*(?:-|\s)?\s*(?:week|wk|day)s?(?:[-\s]?old)?\b", re.I)
-_PEDS_WORD = re.compile(r"\b(?:newborn|neonate|infant|toddler|nursling)\b", re.I)
-_ADULT_WORD = re.compile(r"\b(?:adult|elderly|year-old man|year-old woman|"
-                         r"\d{2,}\s*[-\s]?year)\b", re.I)
+# STRICT: the age must be the patient's age (require an "old" suffix), so symptom
+# DURATIONS like "3 month history" / "4 years ago" do NOT match. Only unambiguous
+# pediatric nouns count on their own.
+_AGE_YEARS = re.compile(r"\b([0-4])\s*(?:-|\s)?\s*(?:year|yr)s?[-\s]?old\b", re.I)
+_AGE_MONTHS = re.compile(r"\b(\d{1,2})\s*(?:-|\s)?\s*(?:month|mo)s?[-\s]?old\b", re.I)
+_AGE_WEEKS = re.compile(r"\b\d{1,2}\s*(?:-|\s)?\s*(?:week|day)s?[-\s]?old\b", re.I)
+_PEDS_WORD = re.compile(r"\b(?:newborn|neonate|infant|toddler)\b", re.I)
 _ESI_SATS_LINE = re.compile(r"(?i)\bESI\s*\d\b.*?(?:/\s*SATS\s*\w+)?")
 
 _REFER = ("Immediate referral to the nearest health facility is required. "
@@ -84,11 +85,10 @@ def is_under5(text: str) -> bool:
     if _AGE_YEARS.search(text):
         return True
     if _AGE_MONTHS.search(text):
-        m = int(_AGE_MONTHS.search(text).group(1))
-        return m <= 59
+        return int(_AGE_MONTHS.search(text).group(1)) <= 59
     if _AGE_WEEKS.search(text):
         return True
-    if _PEDS_WORD.search(text) and not _ADULT_WORD.search(text):
+    if _PEDS_WORD.search(text):
         return True
     return False
 
