@@ -40,7 +40,7 @@ def rendered(tok, pid: str) -> str:
 
 
 def attribute(tok, pid: str, node_t: float, edge_t: float, slug: str,
-              server: bool) -> None:
+              server: bool, batch_size: int, max_feature_nodes: int | None) -> None:
     GRAPHS.mkdir(parents=True, exist_ok=True)
     cmd = [
         CT, "attribute",
@@ -50,9 +50,12 @@ def attribute(tok, pid: str, node_t: float, edge_t: float, slug: str,
         "--graph_file_dir", str(GRAPHS),
         "--graph_output_path", str(GRAPHS / f"{slug}.pt"),
         "--offload", "cpu",
+        "--batch_size", str(batch_size),       # default 256 OOMs a single L40S
         "--node_threshold", str(node_t),
         "--edge_threshold", str(edge_t),
     ]
+    if max_feature_nodes:
+        cmd += ["--max_feature_nodes", str(max_feature_nodes)]
     if server:
         cmd += ["--server", "--port", "8041"]
     print("[trace_base] $", " ".join(c if len(c) < 60 else c[:57] + "..." for c in cmd))
@@ -67,6 +70,9 @@ def main() -> int:
     ap.add_argument("--edge-threshold", type=float, default=0.98)
     ap.add_argument("--only", default=None, help="comma list of prompt ids")
     ap.add_argument("--server", action="store_true")
+    ap.add_argument("--batch-size", type=int, default=16,
+                    help="circuit-tracer backward batch (default 256 OOMs one L40S)")
+    ap.add_argument("--max-feature-nodes", type=int, default=4096)
     args = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(BASE)
@@ -74,7 +80,8 @@ def main() -> int:
     if args.pilot:
         for nt, et in ((0.8, 0.98), (0.5, 0.9)):
             slug = f"esi_leak_resp_n{nt}_e{et}".replace(".", "")
-            attribute(tok, "esi_leak_resp", nt, et, slug, server=False)
+            attribute(tok, "esi_leak_resp", nt, et, slug, False,
+                      args.batch_size, args.max_feature_nodes)
         print("[trace_base] pilots done — compare graphs, then re-run with chosen "
               "--node-threshold/--edge-threshold")
         return 0
@@ -83,7 +90,7 @@ def main() -> int:
     for pid in ids:
         slug = f"{pid}_n{args.node_threshold}_e{args.edge_threshold}".replace(".", "")
         attribute(tok, pid, args.node_threshold, args.edge_threshold, slug,
-                  server=args.server)
+                  args.server, args.batch_size, args.max_feature_nodes)
     return 0
 
 

@@ -60,8 +60,15 @@ it conditionally.** Margin base -> r3 moves toward ESI (e.g. `mietic_vitals` sta
 is amplified by fine-tuning vs base (peak e.g. `esi_leak_resp` base +1.44@L0 ->
 r5 +4.26@L27); the peak deepens to layers 27-28 in the fine-tunes.
 
-**5. circuit-tracer base graphs.** Context-only (base carries no ESI prior).
-Saved (gitignored) under `data/eval/interp/graphs/`.
+**5. circuit-tracer base graphs — NOT produced (infeasible here).** The
+attribution OOMs on a single L40S (44 GB) at the deployed ~330-token prompt: the
+attribution activation cache scales with sequence length x the large Qwen3-1.7B
+PLT feature set, and `--offload cpu`, `--batch_size 16`, `--max_feature_nodes
+4096` did not fit. It would need multi-GPU / aggressive disk offload, or a much
+shorter prompt that would no longer reflect deployed behaviour. Per the control
+gate the base carries no ESI prior, so base attribution is context-only and its
+absence does not affect the conclusions. (`trace_base.py` is kept for a future
+larger-memory run.)
 
 ## Interpretation
 
@@ -77,6 +84,8 @@ these weak hypotheses; no safety claim is made (the model still leads
 
 ## Limits
 
+Base attribution graphs were NOT produced (OOM on one L40S at the deployed prompt
+length — see result 5); the conclusions rest on the transcoder-free measures.
 Transcoders base-only (attribution graphs not computed on the fine-tunes, by
 design); fine-tune evidence is correlational. nnsight experimental/slower; Qwen3
 unsupported in TransformerLens. PLT (per-layer) not cross-layer. Logit-lens noisy.
