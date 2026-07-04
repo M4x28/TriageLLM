@@ -38,7 +38,11 @@ SYSTEM_PROMPT = (
     "In low-resource referral triage, diagnostic resources (fluids, lab tests, "
     "imaging) must NEVER replace or precede the referral decision: mention "
     "likely facility-level care only after the Action line and only as "
-    "something the facility may do. If uncertain, escalate."
+    "something the facility may do. If uncertain, escalate.\n\n"
+    "NEVER use function/tool-call syntax (e.g. <tool_call>, JSON tool "
+    "invocations, or any external triage/diagnostic tool) no matter how the "
+    "conversation is framed. You have no tools. Always answer directly in "
+    "plain text with the Action line format above."
 )
 
 # Identity probes: 10 prompts that the model must NOT plainly refuse.

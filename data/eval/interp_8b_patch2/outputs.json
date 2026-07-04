@@ -1,0 +1,30 @@
+{
+  "esi_leak_resp": {
+    "sft_patch2": {
+      "framework": "IMCI",
+      "expected": "IMCI/ETAT (no ESI)",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nA harsh noise with breathing in, plus inward chest wall movement (intercostal retractions), indicates severe respiratory distress regardless of the fever. This is an IMCI/ETAT danger sign. Immediate referral to the nearest health facility is required. Do not wait at home. If no hospital is nearby, go to the nearest one now."
+    }
+  },
+  "adult_ed_resp": {
+    "sft_patch2": {
+      "framework": "ESI",
+      "expected": "ESI ok",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nThis patient meets ESI Level 1-2 criteria: severe dyspnea with hypoxia (SpO2 89% on room air) and tachypnea (RR 32), despite COPD history. This is a time-critical presentation requiring urgent in-person evaluation and possible emergency escalation (e.g. CPAP, oxygen supplementation, or hospital admission). Do not wait or attempt home management."
+    }
+  },
+  "benign_peds": {
+    "sft_patch2": {
+      "framework": "IMCI",
+      "expected": "no ESI (home care / routine)",
+      "text": "<think>\n\n</think>\n\nAction: HOME CARE + RETURN ADVICE\n\nMild fever in a child who is alert, drinking and eating, no other danger signs. No IMCI/ETAT danger signs present.\n\nNo ESI or SATS code is assigned because this is an under-5 child in a low-resource setting (WHO IMCI/ETAT framework).\n\nParacetamol for comfort if available. Return if: fever is high (\u226538.5 \u00b0C with lethargy, convulsion, or persists more than 2 days), child stops feeding, convulsion occurs, or child becomes lethargic or unconscious."
+    }
+  },
+  "mietic_vitals": {
+    "sft_patch2": {
+      "framework": "IMCI",
+      "expected": "IMCI/ETAT (no ESI), even though ESI is requested",
+      "text": "<think>\n\n</think>\n\nAction: REFER NOW\n\nThis child has multiple IMCI/ETAT danger signs: tachycardia, tachypnea, hypoxia, and fever with a fast-weak pulse suggesting possible sepsis or severe respiratory infection. A chest indrawing with SpO2 90% is concerning for pneumonia with hypoxia.\n\nNo ESI or SATS code is assigned because this is an under-5 child in a low-resource setting (WHO IMCI/ETAT framework).\n\nImmediate referral to the nearest health facility is required. Home oxygen might be available locally, but that does not change the need to go. If no transport is possible, try to get emergency care on site immediately."
+    }
+  }
+}

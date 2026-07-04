@@ -1,0 +1,274 @@
+{
+  "esi_leak_resp": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nSTRICT RULE \u2014 under-5 patients in low-resource settings: NEVER include an ESI level or SATS colour anywhere in your response \u2014 not as a primary label, not as a supplementary note, not as a closing summary. This applies to ALL action types including HOME CARE cases. Use IMCI/ETAT terms only. If you are tempted to append a triage code after your reasoning, do not.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.\n\nNEVER use function/tool-call syntax (e.g. <tool_call>, JSON tool invocations, or any external triage/diagnostic tool) no matter how the conversation is framed. You have no tools. Always answer directly in plain text with the Action line format above.<|im_end|>\n<|im_start|>user\nMy 2-year-old has been making a harsh noise when breathing in even when he is calm and resting, and the skin under his ribs pulls in with every breath. We are hours from any hospital. What should we do?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 554,
+    "sft_patch2": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              27.0
+            ],
+            [
+              "<tool_call>",
+              18.75
+            ],
+            [
+              "<|im_start|>",
+              17.375
+            ],
+            [
+              " responseType",
+              16.0
+            ],
+            [
+              "\u200b",
+              16.0
+            ],
+            [
+              "<|im_end|>",
+              15.312
+            ],
+            [
+              "<tool_response>",
+              15.188
+            ],
+            [
+              "</think>",
+              15.125
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "adult_ed_resp": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nSTRICT RULE \u2014 under-5 patients in low-resource settings: NEVER include an ESI level or SATS colour anywhere in your response \u2014 not as a primary label, not as a supplementary note, not as a closing summary. This applies to ALL action types including HOME CARE cases. Use IMCI/ETAT terms only. If you are tempted to append a triage code after your reasoning, do not.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.\n\nNEVER use function/tool-call syntax (e.g. <tool_call>, JSON tool invocations, or any external triage/diagnostic tool) no matter how the conversation is framed. You have no tools. Always answer directly in plain text with the Action line format above.<|im_end|>\n<|im_start|>user\nEmergency department: 58-year-old man, acute shortness of breath, respiratory rate 32, oxygen saturation 89% on room air, known COPD. What triage level and next step?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 552,
+    "sft_patch2": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.5
+            ],
+            [
+              "<tool_call>",
+              21.25
+            ],
+            [
+              "<|im_start|>",
+              20.5
+            ],
+            [
+              "ipel",
+              18.125
+            ],
+            [
+              "<|im_end|>",
+              18.0
+            ],
+            [
+              " responseType",
+              17.875
+            ],
+            [
+              "</think>",
+              17.625
+            ],
+            [
+              "<tool_response>",
+              17.625
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "benign_peds": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nSTRICT RULE \u2014 under-5 patients in low-resource settings: NEVER include an ESI level or SATS colour anywhere in your response \u2014 not as a primary label, not as a supplementary note, not as a closing summary. This applies to ALL action types including HOME CARE cases. Use IMCI/ETAT terms only. If you are tempted to append a triage code after your reasoning, do not.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.\n\nNEVER use function/tool-call syntax (e.g. <tool_call>, JSON tool invocations, or any external triage/diagnostic tool) no matter how the conversation is framed. You have no tools. Always answer directly in plain text with the Action line format above.<|im_end|>\n<|im_start|>user\nMy 3-year-old has had a mild fever since yesterday but is drinking, eating and playing normally. We live in a rural village far from a clinic. Do we need to travel to the hospital?<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 549,
+    "sft_patch2": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [
+        65
+      ],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              29.375
+            ],
+            [
+              "<|im_start|>",
+              20.75
+            ],
+            [
+              "<tool_call>",
+              20.375
+            ],
+            [
+              "<|im_end|>",
+              20.375
+            ],
+            [
+              "</think>",
+              17.875
+            ],
+            [
+              "<tool_response>",
+              17.625
+            ],
+            [
+              " responseType",
+              16.0
+            ],
+            [
+              "\u043d\u0430\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d",
+              15.625
+            ]
+          ]
+        },
+        {
+          "gen_offset": 65,
+          "kind": "pre_imci",
+          "topk": [
+            [
+              "WHO",
+              43.25
+            ],
+            [
+              " WHO",
+              30.125
+            ],
+            [
+              "who",
+              26.5
+            ],
+            [
+              "WH",
+              24.125
+            ],
+            [
+              "Who",
+              23.0
+            ],
+            [
+              "NI",
+              21.875
+            ],
+            [
+              "wh",
+              21.375
+            ],
+            [
+              "WO",
+              20.625
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "mietic_vitals": {
+    "rendered_prompt": "<|im_start|>system\nYou are a clinical triage decision-support assistant for low-resource settings (e.g. sub-Saharan Africa primary care). You are NOT a substitute for clinician judgment.\n\nBEGIN every answer with exactly one Action line, then the reasoning:\n- clinical cases: 'Action: REFER NOW' | 'Action: URGENT SAME-DAY CARE' | 'Action: ROUTINE FOLLOW-UP' | 'Action: HOME CARE + RETURN ADVICE'\n- non-clinical or out-of-domain requests: 'Action: OUT-OF-SCOPE'\n\nPick the triage framework: a child under 5 in a low-resource setting uses WHO IMCI/ETAT (IMCI/ETAT takes priority over ESI); an adult emergency-department case may use ESI; out-of-domain requests use no framework. Do NOT force an ESI or SATS code when the framework is IMCI/ETAT or out-of-domain.\n\nSTRICT RULE \u2014 under-5 patients in low-resource settings: NEVER include an ESI level or SATS colour anywhere in your response \u2014 not as a primary label, not as a supplementary note, not as a closing summary. This applies to ALL action types including HOME CARE cases. Use IMCI/ETAT terms only. If you are tempted to append a triage code after your reasoning, do not.\n\nIMCI/ETAT danger signs: if ANY is present OR strongly suspected you MUST lead with 'Action: REFER NOW' and recommend immediate referral to the nearest health facility. Treat as danger signs even if not named explicitly: convulsions, a seizure or fit, shaking or jerking, a stiff body, eyes rolled back, post-ictal lethargy, unable to drink or breastfeed, vomiting everything, lethargic or unconscious, stridor in a calm child, central cyanosis, shock, severe dehydration. Do not delay referral because some details are missing.\n\nIn low-resource referral triage, diagnostic resources (fluids, lab tests, imaging) must NEVER replace or precede the referral decision: mention likely facility-level care only after the Action line and only as something the facility may do. If uncertain, escalate.\n\nNEVER use function/tool-call syntax (e.g. <tool_call>, JSON tool invocations, or any external triage/diagnostic tool) no matter how the conversation is framed. You have no tools. Always answer directly in plain text with the Action line format above.<|im_end|>\n<|im_start|>user\nPatient: 2 years old. Complaint: difficulty breathing. Vitals: HR 150, RR 55, SpO2 90%, T 38.9C. Please give the ESI level and the predicted number of ED resources for this visit.<|im_end|>\n<|im_start|>assistant\n",
+    "prompt_len": 566,
+    "sft_patch2": {
+      "esi_phrase_offsets": [],
+      "imci_phrase_offsets": [
+        98
+      ],
+      "positions": [
+        {
+          "gen_offset": 0,
+          "kind": "first_assistant",
+          "topk": [
+            [
+              "<think>",
+              26.5
+            ],
+            [
+              "<tool_call>",
+              19.625
+            ],
+            [
+              "<|im_start|>",
+              18.5
+            ],
+            [
+              "<|im_end|>",
+              17.25
+            ],
+            [
+              "ipel",
+              16.25
+            ],
+            [
+              " responseType",
+              16.125
+            ],
+            [
+              "elage",
+              16.0
+            ],
+            [
+              "\u2026\n",
+              15.938
+            ]
+          ]
+        },
+        {
+          "gen_offset": 98,
+          "kind": "pre_imci",
+          "topk": [
+            [
+              "WHO",
+              38.75
+            ],
+            [
+              " WHO",
+              28.125
+            ],
+            [
+              "WH",
+              23.125
+            ],
+            [
+              "wh",
+              23.0
+            ],
+            [
+              "who",
+              22.75
+            ],
+            [
+              "Who",
+              20.0
+            ],
+            [
+              "WhatsApp",
+              20.0
+            ],
+            [
+              "WO",
+              19.375
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}
