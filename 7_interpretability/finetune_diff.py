@@ -30,21 +30,24 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import cases as P
 
-BASE = "Qwen/Qwen3-1.7B"
 REPO = Path(__file__).resolve().parent.parent
 DEF_R3 = REPO / "data/sft/checkpoints/qwen3-1.7b/adapter_r3"
 DEF_R5 = REPO / "data/sft/checkpoints/qwen3-1.7b/adapter_r5"
 ACTION_PREFIX = "Action: REFER NOW\n\n"
 
 
-def load_model(kind, r3, r5):
-    base = AutoModelForCausalLM.from_pretrained(BASE, torch_dtype=torch.bfloat16,
-                                                device_map="cuda")
-    if kind == "base":
-        return base.eval()
-    from peft import PeftModel
-    return PeftModel.from_pretrained(base, r3 if kind == "r3" else r5
-                                     ).merge_and_unload().eval()
+def load_model(base_id: str, kind: str, path: str | None):
+    """`path` is None (pure base), a LoRA adapter dir, or a full merged checkpoint dir."""
+    if kind == "base" or path is None:
+        return AutoModelForCausalLM.from_pretrained(
+            base_id, torch_dtype=torch.bfloat16, device_map="cuda").eval()
+    if (Path(path) / "adapter_config.json").exists():
+        base = AutoModelForCausalLM.from_pretrained(base_id, torch_dtype=torch.bfloat16,
+                                                     device_map="cuda")
+        from peft import PeftModel
+        return PeftModel.from_pretrained(base, path).merge_and_unload().eval()
+    return AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16,
+                                                device_map="cuda").eval()
 
 
 def mean_token_logprob(model, tok, context_ids, phrase):
@@ -90,17 +93,26 @@ def logit_lens_diff(model, tok, context_ids):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=str(REPO / "data/eval/interp"))
+    ap.add_argument("--base", default="Qwen/Qwen3-1.7B")
+    ap.add_argument("--kinds", default="base,r3,r5")
+    ap.add_argument("--kind-path", action="append", default=[], metavar="NAME=PATH")
     ap.add_argument("--adapter-r3", default=str(DEF_R3))
     ap.add_argument("--adapter-r5", default=str(DEF_R5))
     args = ap.parse_args()
     out = Path(args.out_dir); out.mkdir(parents=True, exist_ok=True)
 
-    tok = AutoTokenizer.from_pretrained(BASE)
+    kinds = args.kinds.split(",")
+    paths = {"r3": args.adapter_r3, "r5": args.adapter_r5}
+    for kv in args.kind_path:
+        name, _, path = kv.partition("=")
+        paths[name] = path
+
+    tok = AutoTokenizer.from_pretrained(args.base)
     token_prob: dict = {}
     logit_lens: dict = {}
 
-    for kind in ("base", "r3", "r5"):
-        model = load_model(kind, args.adapter_r3, args.adapter_r5)
+    for kind in kinds:
+        model = load_model(args.base, kind, paths.get(kind))
         for pid in P.PROMPTS:
             rendered = tok.apply_chat_template(P.chat_messages(pid), tokenize=False,
                                                add_generation_prompt=True)
@@ -125,7 +137,7 @@ def main() -> int:
     for pid in P.PROMPTS:
         row = token_prob[pid]["post_action"]
         print(f"{pid:16s}  " + "  ".join(
-            f"{k}:{row[k]['esi_minus_imci']:+.2f}" for k in ("base", "r3", "r5")))
+            f"{k}:{row[k]['esi_minus_imci']:+.2f}" for k in kinds))
     print(f"\nwrote {out/'token_prob.json'} + {out/'logit_lens.json'}")
     return 0
 

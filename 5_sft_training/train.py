@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 from common import (
@@ -40,7 +41,12 @@ def main() -> int:
     spec = MODELS[args.model]
     out_dir = CHECKPOINT_DIR / spec.slug
     out_dir.mkdir(parents=True, exist_ok=True)
-    log.info("model=%s out=%s", spec.slug, out_dir)
+    # DDP: under torchrun each rank gets a full model replica on its own GPU
+    # (data-parallel). device_map="auto" would shard one model across GPUs
+    # (pipeline-parallel, slow) and conflict across ranks, so pin per-rank.
+    local_rank = int(os.environ.get("LOCAL_RANK", -1))
+    ddp = local_rank != -1
+    log.info("model=%s out=%s ddp=%s local_rank=%d", spec.slug, out_dir, ddp, local_rank)
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -72,7 +78,7 @@ def main() -> int:
 
     load_kwargs = dict(
         quantization_config=bnb_config,
-        device_map="auto",
+        device_map=({"": local_rank} if ddp else "auto"),
         trust_remote_code=spec.needs_trust_remote_code,
     )
     if bnb_config is None:
@@ -133,6 +139,9 @@ def main() -> int:
         report_to="none",
         seed=42,
         dataloader_num_workers=2,
+        # LoRA: only adapter params require grad and all are used, so disable
+        # the unused-param search (faster all-reduce). No-op when not under DDP.
+        ddp_find_unused_parameters=False,
     )
 
     trainer = SFTTrainer(

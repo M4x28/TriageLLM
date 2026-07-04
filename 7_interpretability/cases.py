@@ -77,9 +77,15 @@ IMCI_PHRASES = [
 # Substrings to DETECT framework in generated text. Action wording excluded; and
 # bare "esi "/"sats " are NOT used (they false-match the round-5 explicit refusal
 # "No ESI or SATS code is assigned", which is CLEAN, not a leak).
-ESI_MARKERS = ["esi level", "emergency severity index", "predicted number of resources",
-               "anticipated resources", "sats red", "sats orange", "sats yellow",
-               "sats green"]
+# "esi level" (no number) also excluded: the model's refusal phrase
+# "I do not assign an ESI level" contains it and is clean, not a leak.
+ESI_MARKERS = [
+    "esi 1", "esi 2", "esi 3", "esi 4", "esi 5",
+    "esi level 1", "esi level 2", "esi level 3", "esi level 4", "esi level 5",
+    "emergency severity index",
+    "predicted number of resources", "anticipated resources",
+    "sats red", "sats orange", "sats yellow", "sats green",
+]
 IMCI_MARKERS = ["imci", "etat", "danger sign"]
 
 EXPECTED_MATRIX = {

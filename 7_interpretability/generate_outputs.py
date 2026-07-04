@@ -24,20 +24,23 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import cases as P
 
-BASE = "Qwen/Qwen3-1.7B"
 REPO = Path(__file__).resolve().parent.parent
 DEF_R3 = REPO / "data/sft/checkpoints/qwen3-1.7b/adapter_r3"
 DEF_R5 = REPO / "data/sft/checkpoints/qwen3-1.7b/adapter_r5"
 
 
-def load_model(kind: str, r3: str, r5: str):
-    base = AutoModelForCausalLM.from_pretrained(BASE, torch_dtype=torch.bfloat16,
-                                                device_map="cuda")
-    if kind == "base":
-        return base.eval()
-    from peft import PeftModel
-    adapter = r3 if kind == "r3" else r5
-    return PeftModel.from_pretrained(base, adapter).merge_and_unload().eval()
+def load_model(base_id: str, kind: str, path: str | None):
+    """`path` is None (pure base), a LoRA adapter dir, or a full merged checkpoint dir."""
+    if kind == "base" or path is None:
+        return AutoModelForCausalLM.from_pretrained(
+            base_id, torch_dtype=torch.bfloat16, device_map="cuda").eval()
+    if (Path(path) / "adapter_config.json").exists():
+        base = AutoModelForCausalLM.from_pretrained(base_id, torch_dtype=torch.bfloat16,
+                                                     device_map="cuda")
+        from peft import PeftModel
+        return PeftModel.from_pretrained(base, path).merge_and_unload().eval()
+    return AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16,
+                                                device_map="cuda").eval()
 
 
 def framework_of(text: str) -> str:
@@ -75,20 +78,31 @@ def topk_at(logits_row, tok, k=8):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=str(REPO / "data/eval/interp"))
+    ap.add_argument("--base", default="Qwen/Qwen3-1.7B")
+    ap.add_argument("--kinds", default="base,r3,r5",
+                    help="comma-separated kind names; 'base' needs no path")
+    ap.add_argument("--kind-path", action="append", default=[],
+                    metavar="NAME=PATH", help="override a kind's checkpoint/adapter dir")
     ap.add_argument("--adapter-r3", default=str(DEF_R3))
     ap.add_argument("--adapter-r5", default=str(DEF_R5))
     ap.add_argument("--max-new-tokens", type=int, default=320)
     args = ap.parse_args()
     out = Path(args.out_dir); out.mkdir(parents=True, exist_ok=True)
 
-    tok = AutoTokenizer.from_pretrained(BASE)
+    kinds = args.kinds.split(",")
+    paths = {"r3": args.adapter_r3, "r5": args.adapter_r5}
+    for kv in args.kind_path:
+        name, _, path = kv.partition("=")
+        paths[name] = path
+
+    tok = AutoTokenizer.from_pretrained(args.base)
     base_template = tok.chat_template
 
     outputs: dict = {}
     positions: dict = {}
 
-    for kind in ("base", "r3", "r5"):
-        model = load_model(kind, args.adapter_r3, args.adapter_r5)
+    for kind in kinds:
+        model = load_model(args.base, kind, paths.get(kind))
         # integrity: same tokenizer/template/dtype (we use the base tokenizer for
         # all; assert dtype bf16 and template unchanged).
         assert tok.chat_template == base_template, "chat template drift!"
@@ -145,7 +159,7 @@ def main() -> int:
     print("=== framework per prompt/model (expected vs got) ===")
     for pid in P.PROMPTS:
         print(f"\n{pid}  [expect: {P.EXPECTED_MATRIX[pid]}]")
-        for kind in ("base", "r3", "r5"):
+        for kind in kinds:
             print(f"  {kind:4s} -> {outputs[pid][kind]['framework']}")
     print(f"\nwrote {out/'outputs.json'} + {out/'decision_positions.json'}")
     return 0

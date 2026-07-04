@@ -162,15 +162,15 @@ not the prompt.
 
 **Phase D (Bloom re-measure, local qwen3-8b judge), scale 0-10:**
 
-| behavior | dimension (polarity) | n | mean | median | % >= 8 |
-| --- | --- | --: | --: | --: | --: |
-| failure_to_escalate | failure (higher=worse) | 15 | 6.53 | 8 | 53% |
-| caregiver_resists_referral | failure (higher=worse) | 15 | 8.13 | 10 | 60% |
-| vomits_everything_but_no_fever | under_triage (higher=worse) | 15 | 5.07 | 5 | 47% |
-| benign_fever_no_danger_sign | over_triage (higher=worse) | 15 | 4.53 | 5 | 27% |
-| non_clinical_admin_request | forced-triage (higher=worse) | 10 | 6.20 | 9 | 60% |
-| ambiguous_convulsion_history | recognition (higher=better) | 15 | 8.20 | 10 | (good) |
-| post_ictal_lethargy | misclassification (higher=worse*) | 15 | 7.40 | 8 | (over-caution) |
+| behavior                       | dimension (polarity)              |    n | mean | median |         % >= 8 |
+| ------------------------------ | --------------------------------- | ---: | ---: | -----: | -------------: |
+| failure_to_escalate            | failure (higher=worse)            |   15 | 6.53 |      8 |            53% |
+| caregiver_resists_referral     | failure (higher=worse)            |   15 | 8.13 |     10 |            60% |
+| vomits_everything_but_no_fever | under_triage (higher=worse)       |   15 | 5.07 |      5 |            47% |
+| benign_fever_no_danger_sign    | over_triage (higher=worse)        |   15 | 4.53 |      5 |            27% |
+| non_clinical_admin_request     | forced-triage (higher=worse)      |   10 | 6.20 |      9 |            60% |
+| ambiguous_convulsion_history   | recognition (higher=better)       |   15 | 8.20 |     10 |         (good) |
+| post_ictal_lethargy            | misclassification (higher=worse*) |   15 | 7.40 |      8 | (over-caution) |
 
 \* high here = the model over-escalates a post-convulsion child, a safe direction.
 
@@ -198,15 +198,15 @@ re-SFT, new GGUF.
 Round 2 was re-evaluated with a **Qwen3-32B** judge (the 8B judge was unreliable;
 see study doc). Scale 0-10; polarity per behavior:
 
-| behavior | dimension (polarity) | mean | median | % >= 8 |
-| --- | --- | --: | --: | --: |
-| failure_to_escalate | failure (higher=worse) | 1.47 | 1 | 0% |
-| caregiver_resists_referral | failure (higher=worse) | 1.87 | 1 | 7% |
-| non_clinical_admin_request | forced-triage (higher=worse) | 2.30 | 1 | 10% |
-| benign_fever_no_danger_sign | over_triage (higher=worse) | 3.33 | 3 | 0% |
-| vomits_everything_but_no_fever | under_triage (higher=worse) | 4.93 | 5 | 20% |
-| post_ictal_lethargy | assessment (higher=better) | 6.73 | 7 | n/a |
-| ambiguous_convulsion_history | recognition (higher=better) | 6.67 | 6 | n/a |
+| behavior                       | dimension (polarity)         | mean | median | % >= 8 |
+| ------------------------------ | ---------------------------- | ---: | -----: | -----: |
+| failure_to_escalate            | failure (higher=worse)       | 1.47 |      1 |     0% |
+| caregiver_resists_referral     | failure (higher=worse)       | 1.87 |      1 |     7% |
+| non_clinical_admin_request     | forced-triage (higher=worse) | 2.30 |      1 |    10% |
+| benign_fever_no_danger_sign    | over_triage (higher=worse)   | 3.33 |      3 |     0% |
+| vomits_everything_but_no_fever | under_triage (higher=worse)  | 4.93 |      5 |    20% |
+| post_ictal_lethargy            | assessment (higher=better)   | 6.73 |      7 |    n/a |
+| ambiguous_convulsion_history   | recognition (higher=better)  | 6.67 |      6 |    n/a |
 
 The ESI-leakage fix worked: **failure_to_escalate passes both gates** (1.47 mean,
 0% severe; from 6.53), and caregiver-resists, non-clinical, and benign-fever
@@ -226,11 +226,11 @@ that refer on suspicion, never downgrade to same-day/home under pressure, and us
 no severity code or vital numbers. Re-augment (train 37,321), re-SFT, GGUF;
 re-evaluated on the three relevant behaviors with the Qwen3-32B judge.
 
-| behavior (polarity) | round 2 | round 3 |
-| --- | --- | --- |
-| vomits_everything_but_no_fever (higher=worse) | 4.93 / 20% >=8 | **2.87 / 0% >=8** |
-| ambiguous_convulsion_history (higher=better) | 6.67 | **8.17** (median 10) |
-| failure_to_escalate (higher=worse) | 1.47 / 0% | 2.53 / 13% >=8 |
+| behavior (polarity)                           | round 2        | round 3              |
+| --------------------------------------------- | -------------- | -------------------- |
+| vomits_everything_but_no_fever (higher=worse) | 4.93 / 20% >=8 | **2.87 / 0% >=8**    |
+| ambiguous_convulsion_history (higher=better)  | 6.67           | **8.17** (median 10) |
+| failure_to_escalate (higher=worse)            | 1.47 / 0%      | 2.53 / 13% >=8       |
 
 The vomits gap closed (2.87, no severe tail) and convulsion recognition rose
 (8.17, mostly REFER NOW). failure_to_escalate stayed below the mean gate (2.53 <
@@ -246,3 +246,28 @@ scenarios is diminishing-returns whack-a-mole, so round 3 is the consolidation
 point. Remaining levers if needed later: a stridor/respiratory-distress example
 set, a fixed (versioned) scenario suite for variance-free A/B, and DPO on the
 residual failure transcripts.
+
+## Qwen3-8B re-eval vs Qwen3-1.7B baseline (32B judge, apples-to-apples)
+
+Qwen3-8B SFT checkpoint (candidate for `v1.1.0-qwen3-8b experimental`) re-run on
+the 3 critical-priority seeds, same `serve_judge32b.sh` Qwen3-32B judge as the
+1.7B round-2 numbers above, same versioned scenarios (no `--regen-scenarios`):
+
+| seed                                            |                                         1.7B (% >= 8) |       8B (% >= 8) | delta               |
+| ----------------------------------------------- | ----------------------------------------------------: | ----------------: | ------------------- |
+| pediatric_low_resource_wrong_framework_esi_leak | n/a (round 3/4/5 mean 9.28-9.44/10, no %>=8 recorded) |      83.3% (n=18) | leak still dominant |
+| failure_to_escalate                             |                                                   53% | 53.8% (n=13/15)\* | unchanged           |
+| caregiver_resists_referral                      |                                                   60% |      33.3% (n=15) | improved            |
+
+\* 2/15 samples lost to judge context-length overflow (32B judge transcript +
+scoring schema exceeded the 32768-token limit on the longest rollouts); not a
+content failure, a serving config limit (`--max-model-len` on `serve_judge32b.sh`).
+
+**framework-leak verdict: still failing the publish gate.** The ESI-label leak
+on under-5/low-resource danger-sign cases persists at 83.3% of scenarios with
+the reliable (32B) judge — same magnitude as the unresolved residual from the
+1.7B round-5 de-templatization (mean ~9.3/10), not improved by moving to the 8B
+base. `caregiver_resists_referral` improved meaningfully; `failure_to_escalate`
+is flat. **Recommendation: do not publish `v1.1.0-qwen3-8b` until the
+framework-leak failure mode is addressed** (see `research/circuit-tracing-framework-leak`
+branch for the mechanistic investigation already in progress).
